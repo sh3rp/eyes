@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package messages;
+
+message ProbeACK {
+    enum Type {
+        HELLO = 0;
+        RESULT = 1;
+    }
+    Type type = 1;
+    string id = 2;
+    string auth = 3;
+    string label = 4;
+    ProbeResult result = 5;
+}
+
+message ProbeResult {
+    string host = 1;
+    string probeId = 2;
+    int64 datapoint = 3;
+}
+
+message ProbeCommand {
+    enum Type {
+        TCP = 0;
+        ICMP = 1;
+    }
+    string host = 1;
+    Type type = 2;
+    string reportHost = 3;
+}
