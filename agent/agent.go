@@ -1,12 +1,17 @@
-package client
+package agent
 
 import (
-	"log"
+	"bytes"
+	"encoding/binary"
+	"math/rand"
 	"net"
+	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/oklog/ulid"
+	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
-	"github.com/twinj/uuid"
+	"github.com/sh3rp/eyes/probe"
 )
 
 type ProbeAgent struct {
@@ -16,46 +21,72 @@ type ProbeAgent struct {
 }
 
 func NewAgent() *ProbeAgent {
+	t := time.Now()
+	entropy := rand.New(rand.NewSource(t.UnixNano()))
+	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	return &ProbeAgent{
-		ID:            uuid.NewV4().String(),
+		ID:            id.String(),
 		ResultChannel: make(chan *messages.ProbeResult),
 	}
 }
 
-func (a *ProbeAgent) Start(controllerHost string) {
-	c, err := net.Dial("tcp", controllerHost+":12121")
+func (a *ProbeAgent) connect(host string) net.Conn {
+	c, err := net.Dial("tcp", host+":12121")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Debug().Msgf("Error connecting: %v", err)
+		return nil
 	}
 
-	a.Connection = c
+	log.Info().Msgf("Connected: %s", host)
 
-	hello := &messages.ProbeACK{
-		Type: messages.ProbeACK_HELLO,
-		Id:   a.ID,
-	}
+	return c
+}
 
-	msg, err := proto.Marshal(hello)
-
-	a.Connection.Write(msg)
-
+func (a *ProbeAgent) Start(controllerHost string) {
 	for {
-		data := make([]byte, 4096)
-		len, err := c.Read(data)
+		var c net.Conn
 
-		if err != nil {
-			log.Printf("ERROR (read): %v", err)
-			return
+		for c == nil {
+			c = a.connect(controllerHost)
+			time.Sleep(5 * time.Second)
 		}
 
-		cmd := &messages.ProbeCommand{}
-		err = proto.Unmarshal(data[:len], cmd)
+		a.Connection = c
+
+		hello := &messages.ProbeACK{
+			Type: messages.ProbeACK_HELLO,
+			Id:   a.ID,
+		}
+
+		msg, err := proto.Marshal(hello)
 
 		if err != nil {
-			log.Printf("ERROR (marshal): %v", err)
-		} else {
-			go a.Dispatch(cmd)
+			log.Error().Msgf("Error marshaling hello packet: %v", err)
+			break
+		}
+
+		a.Connection.Write(msg)
+
+		go a.WriteLoop()
+
+		for {
+			data := make([]byte, 4096)
+			len, err := c.Read(data)
+
+			if err != nil {
+				log.Error().Msgf("ERROR (read): %v", err)
+				break
+			}
+
+			cmd := &messages.ProbeCommand{}
+			err = proto.Unmarshal(data[:len], cmd)
+
+			if err != nil {
+				log.Error().Msgf("ERROR (marshal): %v", err)
+			} else {
+				go a.Dispatch(cmd)
+			}
 		}
 	}
 }
@@ -72,8 +103,9 @@ func (a *ProbeAgent) WriteLoop() {
 		data, err := proto.Marshal(msg)
 
 		if err != nil {
-			log.Printf("ERROR (writeLoop): %v", err)
+			log.Error().Msgf("ERROR (writeLoop): %v", err)
 		} else {
+			log.Debug().Msgf("Sending result back")
 			a.Connection.Write(data)
 		}
 	}
@@ -81,12 +113,26 @@ func (a *ProbeAgent) WriteLoop() {
 
 func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 	switch cmd.Type {
-	case messages.ProbeCommand_TCP:
-		log.Printf("Sending TCP ping")
+	case messages.ProbeCommand_NOOP:
 		a.ResultChannel <- &messages.ProbeResult{
-			Host:      "127.0.0.1",
 			ProbeId:   a.ID,
-			Datapoint: 23,
+			Data:      []byte{0, 1, 2, 3, 4, 5, 6, 7},
+			Type:      messages.ProbeResult_NOOP,
+			Timestamp: time.Now().UnixNano(),
+			Host:      "127.0.0.1",
+		}
+	case messages.ProbeCommand_TCP:
+		latency := probe.GetLatency("127.0.0.1", cmd.Host, 80)
+		buf := new(bytes.Buffer)
+		err := binary.Write(buf, binary.LittleEndian, latency)
+		if err == nil {
+			a.ResultChannel <- &messages.ProbeResult{
+				Host:    "127.0.0.1",
+				ProbeId: a.ID,
+				Data:    buf.Bytes(),
+			}
+		} else {
+			log.Error().Msgf("Error packing bytes: %v", err)
 		}
 	}
 }

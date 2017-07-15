@@ -15,17 +15,25 @@ message ProbeACK {
 }
 
 message ProbeResult {
-    string host = 1;
-    string probeId = 2;
-    int64 datapoint = 3;
+    enum Type {
+        NOOP = 0;
+        TCP = 1;
+        ICMP = 2;
+    }
+    Type type = 1;
+    string host = 2;
+    string probeId = 3;
+    int64 timestamp = 4;
+    bytes data = 5;
 }
 
 message ProbeCommand {
     enum Type {
-        TCP = 0;
-        ICMP = 1;
+        NOOP = 0;
+        TCP = 1;
+        ICMP = 2;
     }
     string host = 1;
     Type type = 2;
-    string reportHost = 3;
+    map<string,string> parameters = 3;
 }

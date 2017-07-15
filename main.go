@@ -4,17 +4,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/sh3rp/eyes/client"
+	"github.com/sh3rp/eyes/agent"
 	"github.com/sh3rp/eyes/controller"
 )
 
 func main() {
 	if os.Args[1] == "server" {
-		c := controller.NewProbeController()
-		c.Start()
+		webserver := controller.NewWebserver()
+		webserver.Start()
 	} else if os.Args[1] == "client" {
-		c := client.ProbeAgent{}
-		c.Start("localhost")
+		a := agent.NewAgent()
+		a.Start(os.Args[2])
 		for {
 			time.Sleep(1 * time.Second)
 		}
