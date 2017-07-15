@@ -21,7 +21,6 @@ func (pa *ProbeAgent) SendCommand(cmd *messages.ProbeCommand) error {
 	if err != nil {
 		return err
 	}
-	log.Info().Msgf("Writing command: %v", cmd)
 	pa.Connection.Write(data)
 	return nil
 }
@@ -33,6 +32,7 @@ func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.ProbeResult) {
 
 		if err != nil {
 			log.Error().Msgf("ERROR (readLoop): %v", err)
+			return
 		}
 
 		ack := &messages.ProbeACK{}
@@ -67,7 +67,7 @@ func (c *ProbeController) ResultReadLoop() {
 		switch result.Type {
 		case messages.ProbeResult_NOOP:
 			cmp := bytes.Compare([]byte{0, 1, 2, 3, 4, 5, 6, 7}, result.Data)
-			log.Info().Msgf("Agent %s probe test: %v", result.ProbeId, cmp == 0)
+			log.Info().Msgf("Agent %s (%s) probe test: %v", result.ProbeId, result.Host, cmp == 0)
 		}
 	}
 }

@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 	"math/rand"
 	"net"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -98,6 +100,7 @@ func (a *ProbeAgent) WriteLoop() {
 		msg := &messages.ProbeACK{
 			Type:   messages.ProbeACK_RESULT,
 			Result: result,
+			Id:     a.ID,
 		}
 
 		data, err := proto.Marshal(msg)
@@ -119,20 +122,46 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			Data:      []byte{0, 1, 2, 3, 4, 5, 6, 7},
 			Type:      messages.ProbeResult_NOOP,
 			Timestamp: time.Now().UnixNano(),
-			Host:      "127.0.0.1",
+			Host:      GetLocalIP(),
 		}
 	case messages.ProbeCommand_TCP:
-		latency := probe.GetLatency("127.0.0.1", cmd.Host, 80)
+		var port int
+		if _, ok := cmd.Parameters["port"]; ok {
+			port, _ = strconv.Atoi(cmd.Parameters["port"])
+		} else {
+			port = 80
+		}
+		latency := probe.GetLatency(GetLocalIP(), cmd.Host, uint16(port))
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, latency)
 		if err == nil {
 			a.ResultChannel <- &messages.ProbeResult{
-				Host:    "127.0.0.1",
-				ProbeId: a.ID,
-				Data:    buf.Bytes(),
+				Host:      cmd.Host,
+				ProbeId:   a.ID,
+				Data:      buf.Bytes(),
+				Timestamp: time.Now().UnixNano(),
+				Type:      messages.ProbeResult_TCP,
 			}
 		} else {
 			log.Error().Msgf("Error packing bytes: %v", err)
 		}
 	}
+}
+
+func GetLocalIP() string {
+	var ip string
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		return ""
+	}
+
+	for _, addr := range addrs {
+		if addr.String() != "127.0.0.1" && !strings.Contains(addr.String(), ":") {
+			ipAddr := addr.String()
+			elements := strings.Split(ipAddr, "/")
+			ip = elements[0]
+		}
+	}
+	return ip
 }
