@@ -21,10 +21,11 @@ message ProbeResult {
         ICMP = 2;
     }
     Type type = 1;
-    string host = 2;
-    string probeId = 3;
-    int64 timestamp = 4;
-    bytes data = 5;
+    string cmdId = 2;
+    string host = 3;
+    string probeId = 4;
+    int64 timestamp = 5;
+    bytes data = 6;
 }
 
 message ProbeCommand {
@@ -33,7 +34,8 @@ message ProbeCommand {
         TCP = 1;
         ICMP = 2;
     }
-    string host = 1;
-    Type type = 2;
-    map<string,string> parameters = 3;
+    string id = 1;
+    string host = 2;
+    Type type = 3;
+    map<string,string> parameters = 4;
 }

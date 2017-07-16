@@ -122,6 +122,7 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			Type:      messages.ProbeResult_NOOP,
 			Timestamp: time.Now().UnixNano(),
 			Host:      GetLocalIP(),
+			CmdId:     cmd.Id,
 		}
 	// run TCP probe
 	case messages.ProbeCommand_TCP:
@@ -141,6 +142,7 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 				Data:      buf.Bytes(),
 				Timestamp: time.Now().UnixNano(),
 				Type:      messages.ProbeResult_TCP,
+				CmdId:     cmd.Id,
 			}
 		} else {
 			log.Error().Msgf("Error packing bytes: %v", err)

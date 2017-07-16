@@ -2,10 +2,13 @@ package controller
 
 import (
 	"bytes"
+	"math/rand"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 )
@@ -60,7 +63,8 @@ func (c *ProbeController) Start() {
 	ln, err := net.Listen("tcp", ":12121")
 
 	if err != nil {
-		log.Error().Msgf("%v", err)
+		log.Error().Msgf("Error listening on socket: %v", err)
+		return
 	}
 
 	go c.ResultReadLoop()
@@ -71,23 +75,28 @@ func (c *ProbeController) Start() {
 
 		if err != nil {
 			log.Error().Msgf("%v", err)
+		} else {
+			go c.handle(conn)
 		}
-
-		go c.handle(conn)
 	}
 }
 
-func (c *ProbeController) SendProbe(agentId string, cmd *messages.ProbeCommand) {
+func (c *ProbeController) SendProbe(agentId string, cmd *messages.ProbeCommand) string {
 	log.Info().Msgf("SendProbe: %s", cmd.Type)
+	id := genID()
+	cmd.Id = id
+	c.agentLock.Lock()
+	defer c.agentLock.Unlock()
 	if v, ok := c.Agents[agentId]; ok {
 		v.SendCommand(cmd)
 	} else {
 		log.Error().Msgf("SendProbe failed, no such agentId %s", agentId)
 	}
+	return id
 }
 
-func (c *ProbeController) TestProbe(agentId string) {
-	c.SendProbe(agentId, &messages.ProbeCommand{
+func (c *ProbeController) TestProbe(agentId string) string {
+	return c.SendProbe(agentId, &messages.ProbeCommand{
 		Type: messages.ProbeCommand_NOOP,
 		Host: "127.0.0.1",
 	})
@@ -123,4 +132,11 @@ func (c *ProbeController) handle(conn net.Conn) {
 	go c.Agents[ack.Id].ReadLoop(c.ResultChannel, c.DisconnectChannel)
 
 	log.Info().Msgf("Agent connected: %s (%v)", ack.Id, c.Agents[ack.Id])
+}
+
+func genID() string {
+	t := time.Now()
+	entropy := rand.New(rand.NewSource(t.UnixNano()))
+	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	return id.String()
 }
