@@ -3,62 +3,27 @@ package controller
 import (
 	"bytes"
 	"net"
+	"sync"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 )
 
-type ProbeAgent struct {
-	Id         string
-	Label      string
-	Connection net.Conn
-}
-
-func (pa *ProbeAgent) SendCommand(cmd *messages.ProbeCommand) error {
-	data, err := proto.Marshal(cmd)
-
-	if err != nil {
-		return err
-	}
-	pa.Connection.Write(data)
-	return nil
-}
-
-func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.ProbeResult) {
-	for {
-		data := make([]byte, 4096)
-		len, err := pa.Connection.Read(data)
-
-		if err != nil {
-			log.Error().Msgf("ERROR (readLoop): %v", err)
-			return
-		}
-
-		ack := &messages.ProbeACK{}
-		err = proto.Unmarshal(data[:len], ack)
-
-		if err != nil {
-			log.Error().Msgf("ERROR (unmarshal): %v", err)
-		}
-
-		switch ack.Type {
-		case messages.ProbeACK_RESULT:
-			resultChannel <- ack.Result
-		}
-	}
-}
-
 type ProbeController struct {
-	Agents          map[string]*ProbeAgent
-	ResultChannel   chan *messages.ProbeResult
-	ResultListeners []func(*messages.ProbeResult)
+	Agents            map[string]*ProbeAgent
+	ResultChannel     chan *messages.ProbeResult
+	ResultListeners   []func(*messages.ProbeResult)
+	DisconnectChannel chan string
+	agentLock         *sync.Mutex
 }
 
 func NewProbeController() *ProbeController {
 	return &ProbeController{
-		Agents:        make(map[string]*ProbeAgent),
-		ResultChannel: make(chan *messages.ProbeResult, 10),
+		Agents:            make(map[string]*ProbeAgent),
+		ResultChannel:     make(chan *messages.ProbeResult, 10),
+		DisconnectChannel: make(chan string, 5),
+		agentLock:         new(sync.Mutex),
 	}
 }
 
@@ -80,6 +45,17 @@ func (c *ProbeController) ResultReadLoop() {
 	}
 }
 
+func (c *ProbeController) DisconnectHandler() {
+	for {
+		disconnect := <-c.DisconnectChannel
+		c.agentLock.Lock()
+		if _, ok := c.Agents[disconnect]; ok {
+			c.Agents[disconnect] = nil
+		}
+		c.agentLock.Unlock()
+	}
+}
+
 func (c *ProbeController) Start() {
 	ln, err := net.Listen("tcp", ":12121")
 
@@ -88,6 +64,7 @@ func (c *ProbeController) Start() {
 	}
 
 	go c.ResultReadLoop()
+	go c.DisconnectHandler()
 
 	for {
 		conn, err := ln.Accept()
@@ -133,12 +110,17 @@ func (c *ProbeController) handle(conn net.Conn) {
 		return
 	}
 
+	c.agentLock.Lock()
+
 	c.Agents[ack.Id] = &ProbeAgent{
 		Id:         ack.Id,
 		Label:      ack.Label,
 		Connection: conn,
 	}
-	go c.Agents[ack.Id].ReadLoop(c.ResultChannel)
+
+	c.agentLock.Unlock()
+
+	go c.Agents[ack.Id].ReadLoop(c.ResultChannel, c.DisconnectChannel)
 
 	log.Info().Msgf("Agent connected: %s (%v)", ack.Id, c.Agents[ack.Id])
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/sh3rp/eyes/agent"
 )
@@ -12,7 +13,14 @@ var label string
 
 func main() {
 	flags()
-	fmt.Printf("%s\n", label)
+	if controllerIP == "" {
+		fmt.Println("You must specify a controller IP.")
+		os.Exit(1)
+	}
+	if label == "" {
+		fmt.Println("You must specify a descriptive label.")
+		os.Exit(1)
+	}
 	agent := agent.NewAgent(label)
 	agent.Start(controllerIP)
 }

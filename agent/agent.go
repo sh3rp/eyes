@@ -3,14 +3,12 @@ package agent
 import (
 	"bytes"
 	"encoding/binary"
-	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 	"github.com/sh3rp/eyes/probe"
@@ -24,11 +22,8 @@ type ProbeAgent struct {
 }
 
 func NewAgent(label string) *ProbeAgent {
-	t := time.Now()
-	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	return &ProbeAgent{
-		ID:            id.String(),
+		ID:            GetLocalIP(),
 		Label:         label,
 		ResultChannel: make(chan *messages.ProbeResult),
 	}
