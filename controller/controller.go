@@ -35,6 +35,7 @@ func (c *ProbeController) AddResultListener(f func(*messages.ProbeResult)) {
 }
 
 func (c *ProbeController) ResultReadLoop() {
+	log.Info().Msgf("Starting result reader loop")
 	for {
 		result := <-c.ResultChannel
 		switch result.Type {
@@ -49,6 +50,7 @@ func (c *ProbeController) ResultReadLoop() {
 }
 
 func (c *ProbeController) DisconnectHandler() {
+	log.Info().Msgf("Starting disconnect handler loop")
 	for {
 		disconnect := <-c.DisconnectChannel
 		c.agentLock.Lock()
@@ -60,6 +62,8 @@ func (c *ProbeController) DisconnectHandler() {
 }
 
 func (c *ProbeController) Start() {
+	log.Info().Msgf("Starting controller")
+
 	ln, err := net.Listen("tcp", ":12121")
 
 	if err != nil {
@@ -83,8 +87,7 @@ func (c *ProbeController) Start() {
 
 func (c *ProbeController) SendProbe(agentId string, cmd *messages.ProbeCommand) string {
 	log.Info().Msgf("SendProbe: %s", cmd.Type)
-	id := genID()
-	cmd.Id = id
+	cmd.Id = genID()
 	c.agentLock.Lock()
 	defer c.agentLock.Unlock()
 	if v, ok := c.Agents[agentId]; ok {
@@ -92,7 +95,7 @@ func (c *ProbeController) SendProbe(agentId string, cmd *messages.ProbeCommand) 
 	} else {
 		log.Error().Msgf("SendProbe failed, no such agentId %s", agentId)
 	}
-	return id
+	return cmd.Id
 }
 
 func (c *ProbeController) TestProbe(agentId string) string {
