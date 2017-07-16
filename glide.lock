@@ -1,5 +1,5 @@
-hash: 8cbcb8282b5186e172b4ee3e54a6ae02c7d41503c33881a1ffb16d29d01e48a4
-updated: 2017-07-16T06:58:49.688396588-04:00
+hash: 8511a3c8da87e3eaaf49e8f527e03857a6a8c372bb615e45ce4edfdf99e80221
+updated: 2017-07-16T07:00:56.184926063-04:00
 imports:
 - name: github.com/golang/protobuf
   version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
@@ -11,6 +11,10 @@ imports:
   version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
   subpackages:
   - log
+- name: golang.org/x/net
+  version: f01ecb60fe3835d80d9a0b7b2bf24b228c89260e
+  subpackages:
+  - context
 - name: golang.org/x/sync
   version: f52d1811a62927559de87708c8913c1650ce4f26
   subpackages:
