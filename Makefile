@@ -1,7 +1,12 @@
-all: agent controller
+all: test agent controller
 
-agent: eyes-agent
-	go build cmd/agent/eyes-agent.go
+agent:
+	go build -o eyes-agent cmd/agent/eyes-agent.go
 
-controller: eyes-controller
-	go build cmd/controller/eyes-controller.go
+test:
+	go test ./...
+
+controller:
+	go build -o eyes-controller cmd/controller/eyes-controller.go
+
+.PHONY: agent controller

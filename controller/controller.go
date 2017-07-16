@@ -50,7 +50,7 @@ func (c *ProbeController) DisconnectHandler() {
 		disconnect := <-c.DisconnectChannel
 		c.agentLock.Lock()
 		if _, ok := c.Agents[disconnect]; ok {
-			c.Agents[disconnect] = nil
+			delete(c.Agents, disconnect)
 		}
 		c.agentLock.Unlock()
 	}
