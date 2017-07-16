@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/sh3rp/eyes/agent"
-	"github.com/sh3rp/eyes/controller"
+	"github.com/sh3rp/eyes/web"
 )
 
 func main() {
 	if os.Args[1] == "server" {
-		webserver := controller.NewWebserver()
+		webserver := web.NewWebserver()
 		webserver.Start()
 	} else if os.Args[1] == "client" {
 		a := agent.NewAgent()

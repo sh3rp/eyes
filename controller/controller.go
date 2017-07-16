@@ -50,8 +50,9 @@ func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.ProbeResult) {
 }
 
 type ProbeController struct {
-	Agents        map[string]*ProbeAgent
-	ResultChannel chan *messages.ProbeResult
+	Agents          map[string]*ProbeAgent
+	ResultChannel   chan *messages.ProbeResult
+	ResultListeners []func(*messages.ProbeResult)
 }
 
 func NewProbeController() *ProbeController {
@@ -61,6 +62,10 @@ func NewProbeController() *ProbeController {
 	}
 }
 
+func (c *ProbeController) AddResultListener(f func(*messages.ProbeResult)) {
+	c.ResultListeners = append(c.ResultListeners, f)
+}
+
 func (c *ProbeController) ResultReadLoop() {
 	for {
 		result := <-c.ResultChannel
@@ -68,6 +73,9 @@ func (c *ProbeController) ResultReadLoop() {
 		case messages.ProbeResult_NOOP:
 			cmp := bytes.Compare([]byte{0, 1, 2, 3, 4, 5, 6, 7}, result.Data)
 			log.Info().Msgf("Agent %s (%s) probe test: %v", result.ProbeId, result.Host, cmp == 0)
+		}
+		for _, listener := range c.ResultListeners {
+			listener(result)
 		}
 	}
 }

@@ -1,18 +1,20 @@
-package controller
+package web
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/sh3rp/eyes/controller"
 )
 
 type Webserver struct {
-	Controller *ProbeController
+	Controller *controller.ProbeController
 }
 
 func NewWebserver() *Webserver {
-	controller := NewProbeController()
+	controller := controller.NewProbeController()
 	go controller.Start()
 	return &Webserver{
 		Controller: controller,
@@ -33,7 +35,6 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 
 func (ws *Webserver) listAgents(w http.ResponseWriter, r *http.Request) {
 	agents := ws.Controller.Agents
-
 	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(agents)
 }

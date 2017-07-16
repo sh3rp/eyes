@@ -18,16 +18,18 @@ import (
 
 type ProbeAgent struct {
 	ID            string
+	Label         string
 	Connection    net.Conn
 	ResultChannel chan *messages.ProbeResult
 }
 
-func NewAgent() *ProbeAgent {
+func NewAgent(label string) *ProbeAgent {
 	t := time.Now()
 	entropy := rand.New(rand.NewSource(t.UnixNano()))
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	return &ProbeAgent{
 		ID:            id.String(),
+		Label:         label,
 		ResultChannel: make(chan *messages.ProbeResult),
 	}
 }
@@ -36,7 +38,7 @@ func (a *ProbeAgent) connect(host string) net.Conn {
 	c, err := net.Dial("tcp", host+":12121")
 
 	if err != nil {
-		log.Debug().Msgf("Error connecting: %v", err)
+		log.Error().Msgf("Error connecting: %v", err)
 		return nil
 	}
 
@@ -46,6 +48,7 @@ func (a *ProbeAgent) connect(host string) net.Conn {
 }
 
 func (a *ProbeAgent) Start(controllerHost string) {
+	log.Info().Msgf("Starting agent: %s (%s)", a.ID, a.Label)
 	for {
 		var c net.Conn
 
@@ -57,8 +60,9 @@ func (a *ProbeAgent) Start(controllerHost string) {
 		a.Connection = c
 
 		hello := &messages.ProbeACK{
-			Type: messages.ProbeACK_HELLO,
-			Id:   a.ID,
+			Type:  messages.ProbeACK_HELLO,
+			Id:    a.ID,
+			Label: a.Label,
 		}
 
 		msg, err := proto.Marshal(hello)
@@ -108,7 +112,6 @@ func (a *ProbeAgent) WriteLoop() {
 		if err != nil {
 			log.Error().Msgf("ERROR (writeLoop): %v", err)
 		} else {
-			log.Debug().Msgf("Sending result back")
 			a.Connection.Write(data)
 		}
 	}
@@ -116,6 +119,7 @@ func (a *ProbeAgent) WriteLoop() {
 
 func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 	switch cmd.Type {
+	// used for testing purposes
 	case messages.ProbeCommand_NOOP:
 		a.ResultChannel <- &messages.ProbeResult{
 			ProbeId:   a.ID,
@@ -124,6 +128,7 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			Timestamp: time.Now().UnixNano(),
 			Host:      GetLocalIP(),
 		}
+	// run TCP probe
 	case messages.ProbeCommand_TCP:
 		var port int
 		if _, ok := cmd.Parameters["port"]; ok {
