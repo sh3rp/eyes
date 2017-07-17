@@ -2,10 +2,11 @@ package web
 
 import (
 	"encoding/json"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/controller"
 	"github.com/sh3rp/eyes/messages"
 )
@@ -26,13 +27,41 @@ func NewWebserver() *Webserver {
 
 func (ws *Webserver) Start() {
 	ws.Controller.AddResultListener(ws.handleResult)
-	log.Printf("Webserver starting")
+	log.Info().Msgf("Webserver starting")
 	http.HandleFunc("/agents", ws.listAgents)
 	http.HandleFunc("/agent.control/", ws.controlAgent)
 	http.HandleFunc("/agent.test/", ws.testAgent)
 	http.HandleFunc("/results", ws.listResults)
 	http.HandleFunc("/results/", ws.showResult)
+
+	http.HandleFunc("/html/", ws.serveFile)
+	http.HandleFunc("/js/", ws.serveFile)
+	http.HandleFunc("/css/", ws.serveFile)
 	http.ListenAndServe(":8080", nil)
+}
+
+func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Path
+	filePath := url[1:]
+	data, err := ioutil.ReadFile("static/" + filePath)
+
+	filePathSplit := strings.Split(filePath, ".")
+	fileType := filePathSplit[len(filePathSplit)-1]
+	log.Info().Msgf("Loading: %s", filePath)
+	switch fileType {
+	case "js":
+		w.Header().Set("Content-Type", "text/javascript")
+	case "html":
+		w.Header().Set("Content-Type", "text/html")
+	case "css":
+		w.Header().Set("Content-Type", "text/html")
+	}
+
+	if err != nil {
+		return
+	}
+
+	w.Write(data)
 }
 
 func (ws *Webserver) handleResult(result *messages.ProbeResult) {
@@ -53,7 +82,7 @@ func (ws *Webserver) testAgent(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	elements := strings.Split(url, "/")
 	id := elements[len(elements)-1]
-	log.Printf("Testing agent: %s", id)
+	log.Info().Msgf("Testing agent: %s", id)
 	ws.Controller.TestProbe(id)
 }
 
