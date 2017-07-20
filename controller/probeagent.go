@@ -11,6 +11,7 @@ import (
 type ProbeAgent struct {
 	Id         string
 	Label      string
+	Location   string
 	Connection net.Conn
 }
 

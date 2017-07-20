@@ -10,6 +10,7 @@ import (
 
 var controllerIP string
 var label string
+var location string
 
 func main() {
 	flags()
@@ -21,12 +22,17 @@ func main() {
 		fmt.Println("You must specify a descriptive label.")
 		os.Exit(1)
 	}
-	agent := agent.NewAgent(label)
+	if location == "" {
+		fmt.Println("You must specify a geographical location")
+		os.Exit(1)
+	}
+	agent := agent.NewAgent(label, location)
 	agent.Start(controllerIP)
 }
 
 func flags() {
 	flag.StringVar(&controllerIP, "c", "", "IP address of the controller")
 	flag.StringVar(&label, "l", "", "Label description for the agent")
+	flag.StringVar(&location, "g", "", "Geographical location")
 	flag.Parse()
 }

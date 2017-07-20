@@ -28,11 +28,11 @@ func NewWebserver() *Webserver {
 func (ws *Webserver) Start() {
 	ws.Controller.AddResultListener(ws.handleResult)
 	log.Info().Msgf("Webserver starting")
-	http.HandleFunc("/agents", ws.listAgents)
-	http.HandleFunc("/agent.control/", ws.controlAgent)
-	http.HandleFunc("/agent.test/", ws.testAgent)
-	http.HandleFunc("/results", ws.listResults)
-	http.HandleFunc("/results/", ws.showResult)
+	http.HandleFunc("/api/agents", ws.listAgents)
+	http.HandleFunc("/api/agent.control/", ws.controlAgent)
+	http.HandleFunc("/api/agent.test/", ws.testAgent)
+	http.HandleFunc("/api/results", ws.listResults)
+	http.HandleFunc("/api/results/", ws.showResult)
 
 	http.HandleFunc("/html/", ws.serveFile)
 	http.HandleFunc("/js/", ws.serveFile)

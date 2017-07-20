@@ -17,14 +17,16 @@ import (
 type ProbeAgent struct {
 	ID            string
 	Label         string
+	Location      string
 	Connection    net.Conn
 	ResultChannel chan *messages.ProbeResult
 }
 
-func NewAgent(label string) *ProbeAgent {
+func NewAgent(label, location string) *ProbeAgent {
 	return &ProbeAgent{
 		ID:            GetLocalIP(),
 		Label:         label,
+		Location:      location,
 		ResultChannel: make(chan *messages.ProbeResult),
 	}
 }
@@ -55,9 +57,10 @@ func (a *ProbeAgent) Start(controllerHost string) {
 		a.Connection = c
 
 		hello := &messages.ProbeACK{
-			Type:  messages.ProbeACK_HELLO,
-			Id:    a.ID,
-			Label: a.Label,
+			Type:     messages.ProbeACK_HELLO,
+			Id:       a.ID,
+			Label:    a.Label,
+			Location: a.Location,
 		}
 
 		msg, err := proto.Marshal(hello)

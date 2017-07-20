@@ -27,6 +27,7 @@
       <ul class="nav navbar-nav">
         <li class="active"><a href="#" id="agents">Agents <span class="sr-only">(current)</span></a></li>
         <li><a href="#" id="schedules">Schedules</a></li>
+        <li><a href="#" id="results">Results</a></li>
         <li><a href="#" id="visuals">Visuals</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -35,7 +36,22 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-<div id="viewPort">
+<div style="padding:15px">
+    <!-- Single button -->
+<div class="btn-group" style="padding:10px">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Action <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="#">Schedule</a></li>
+    <li><a href="#">Ad-hoc</a></li>
+  </ul>
+</div>
+<div class="panel panel-default" id="viewPort">
+  <div class="panel-body">
+    
+  </div>
+</div>
 </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

@@ -11,7 +11,8 @@ message ProbeACK {
     string id = 2;
     string auth = 3;
     string label = 4;
-    ProbeResult result = 5;
+    string location = 5;
+    ProbeResult result = 6;
 }
 
 message ProbeResult {
