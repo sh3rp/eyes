@@ -35,7 +35,7 @@ func (c *ProbeController) AddResultListener(f func(*messages.ProbeResult)) {
 }
 
 func (c *ProbeController) ResultReadLoop() {
-	log.Info().Msgf("Starting result reader loop")
+	log.Info().Msgf("ResultReadLoop: starting")
 	for {
 		result := <-c.ResultChannel
 		switch result.Type {
@@ -50,7 +50,7 @@ func (c *ProbeController) ResultReadLoop() {
 }
 
 func (c *ProbeController) DisconnectHandler() {
-	log.Info().Msgf("Starting disconnect handler loop")
+	log.Info().Msgf("DisconnectHandler: starting")
 	for {
 		disconnect := <-c.DisconnectChannel
 		c.agentLock.Lock()
@@ -62,7 +62,7 @@ func (c *ProbeController) DisconnectHandler() {
 }
 
 func (c *ProbeController) Start() {
-	log.Info().Msgf("Starting controller")
+	log.Info().Msgf("Controller: starting")
 
 	ln, err := net.Listen("tcp", ":12121")
 
@@ -78,7 +78,7 @@ func (c *ProbeController) Start() {
 		conn, err := ln.Accept()
 
 		if err != nil {
-			log.Error().Msgf("%v", err)
+			log.Error().Msgf("Error accepting connection: %v", err)
 		} else {
 			go c.handle(conn)
 		}
@@ -110,7 +110,7 @@ func (c *ProbeController) handle(conn net.Conn) {
 	len, err := conn.Read(data)
 
 	if err != nil {
-		log.Error().Msgf("ERROR (read): %v", err)
+		log.Error().Msgf("ERROR handle (read): %v", err)
 		return
 	}
 
@@ -118,7 +118,7 @@ func (c *ProbeController) handle(conn net.Conn) {
 	err = proto.Unmarshal(data[:len], ack)
 
 	if err != nil {
-		log.Error().Msgf("ERROR (marshal): %v", err)
+		log.Error().Msgf("ERROR handle (marshal): %v", err)
 		return
 	}
 
