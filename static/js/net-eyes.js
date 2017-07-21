@@ -25,6 +25,10 @@ function outputAgentTable(data) {
     return htmlTable;
 }
 
+function loadAdhocScreen() {
+    
+}
+
 function addActiveSwitcher() {
     $('.navbar-nav li').click(function(e) {
         $('.navbar li.active').removeClass('active');
@@ -34,6 +38,8 @@ function addActiveSwitcher() {
         }
         e.preventDefault();
         switch(e.target.id) {
+            case "adhocProbe":
+                loadAdhocScreen();
             case "agents": // load agents
                 loadAgents();
                 break;
@@ -49,4 +55,5 @@ function addActiveSwitcher() {
 
 $(document).ready(function() {
     addActiveSwitcher();
+    loadAgents();
 });

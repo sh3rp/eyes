@@ -29,7 +29,7 @@ func (ws *Webserver) Start() {
 	ws.Controller.AddResultListener(ws.handleResult)
 	log.Info().Msgf("Webserver starting")
 	http.HandleFunc("/api/agents", ws.listAgents)
-	http.HandleFunc("/api/agent.control/", ws.controlAgent)
+	http.HandleFunc("/api/agent.control", ws.controlAgent)
 	http.HandleFunc("/api/agent.test/", ws.testAgent)
 	http.HandleFunc("/api/results", ws.listResults)
 	http.HandleFunc("/api/results/", ws.showResult)
@@ -69,7 +69,28 @@ func (ws *Webserver) handleResult(result *messages.ProbeResult) {
 }
 
 func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var request AgentControlRequest
+		json.NewDecoder(r.Body).Decode(&request)
 
+		var resultIds []string
+
+		for _, agent := range request.Agents {
+			resultIds = append(resultIds, ws.Controller.SendProbe(agent, &messages.ProbeCommand{
+				Type: messages.ProbeCommand_TCP,
+				Host: request.Host,
+			}))
+		}
+
+		response := &AgentControlResponse{}
+		response.StatusCode = 0
+		response.StatusMessage = "ok"
+		response.Results = resultIds
+
+		json.NewEncoder(w).Encode(response)
+	} else {
+		log.Error().Msgf("POST required for this endpoint")
+	}
 }
 
 func (ws *Webserver) listAgents(w http.ResponseWriter, r *http.Request) {

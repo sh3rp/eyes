@@ -166,6 +166,8 @@ func GetLocalIP() string {
 			ipAddr := addr.String()
 			elements := strings.Split(ipAddr, "/")
 			ip = elements[0]
+			log.Info().Msgf("GetLocalIP: using %s as local addr", ip)
+			break
 		}
 	}
 	return ip

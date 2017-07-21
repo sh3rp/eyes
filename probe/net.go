@@ -1,13 +1,14 @@
 package probe
 
 import (
-	"log"
 	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
@@ -17,9 +18,18 @@ func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
 
 	addrs, err := net.LookupHost(dstIP)
 	if err != nil {
-		log.Fatalf("Error resolving %s. %s\n", dstIP, err)
+		log.Error().Msgf("Error resolving %s. %s\n", dstIP, err)
 	}
-	dstIP = addrs[0]
+	for _, addr := range addrs {
+		if addr != "127.0.0.1" && !strings.Contains(addr, ":") {
+			ipAddr := addr
+			elements := strings.Split(ipAddr, "/")
+			dstIP = elements[0]
+			log.Info().Msgf("GetLatency: using %s as dst addr", dstIP)
+			break
+		}
+	}
+	log.Info().Msgf("SRC: %s, DST: %s", srcIP, dstIP)
 
 	go func() {
 		receiveTime = WaitForResponse(srcIP, dstIP, dstPort)
@@ -61,7 +71,7 @@ func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
 
 	conn, err := net.Dial("ip4:tcp", dstIP)
 	if err != nil {
-		log.Println("Dial: %s\n", err)
+		log.Info().Msgf("Dial: %s\n", err)
 		return time.Now()
 	}
 
@@ -70,12 +80,12 @@ func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
 	numWrote, err := conn.Write(data)
 
 	if err != nil {
-		log.Println("Write: %s\n", err)
+		log.Error().Msgf("Write: %s\n", err)
 		return time.Now()
 	}
 
 	if numWrote != len(data) {
-		log.Println("Error writing %d/%d bytes\n", numWrote, len(data))
+		log.Error().Msgf("Error writing %d/%d bytes\n", numWrote, len(data))
 		return time.Now()
 	}
 
@@ -87,13 +97,13 @@ func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
 func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time {
 	netaddr, err := net.ResolveIPAddr("ip4", localAddress)
 	if err != nil {
-		log.Printf("ERROR: net.ResolveIPAddr: %s. %s\n", localAddress, netaddr)
+		log.Error().Msgf("ERROR: net.ResolveIPAddr: %s. %s\n", localAddress, netaddr)
 		return time.Now()
 	}
 
 	conn, err := net.ListenIP("ip4:tcp", netaddr)
 	if err != nil {
-		log.Println("ListenIP: %s\n", err)
+		log.Error().Msgf("ListenIP: %s\n", err)
 		return time.Now()
 	}
 	var receiveTime time.Time
@@ -101,7 +111,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 		buf := make([]byte, 1024)
 		numRead, raddr, err := conn.ReadFrom(buf)
 		if err != nil {
-			log.Println("ReadFrom: %s\n", err)
+			log.Error().Msgf("ReadFrom: %s\n", err)
 			return time.Now()
 		}
 		if raddr.String() != remoteAddress {
@@ -120,7 +130,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 func GetInterface() string {
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		log.Printf("Error, no interfaces: %s", err)
+		log.Error().Msgf("Error, no interfaces: %s", err)
 		return ""
 	}
 	for _, iface := range interfaces {
@@ -130,7 +140,7 @@ func GetInterface() string {
 		addrs, err := iface.Addrs()
 
 		if err != nil {
-			log.Printf(" %s. %s", iface.Name, err)
+			log.Error().Msgf(" %s. %s", iface.Name, err)
 			continue
 		}
 		var retAddr net.Addr
@@ -152,7 +162,7 @@ func to4byte(addr string) [4]byte {
 	parts := strings.Split(addr, ".")
 	b0, err := strconv.Atoi(parts[0])
 	if err != nil {
-		log.Fatalf("to4byte: %s (latency works with IPv4 addresses only, but not IPv6!)\n", err)
+		log.Error().Msgf("to4byte: %s (latency works with IPv4 addresses only, but not IPv6!)\n", err)
 	}
 	b1, _ := strconv.Atoi(parts[1])
 	b2, _ := strconv.Atoi(parts[2])
