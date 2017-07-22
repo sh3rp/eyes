@@ -1,32 +1,37 @@
 
-function loadAgents() {
-    $.ajax({
-        url: "/api/agents"
-    })
-    .done(function(data){
-        $('#viewPort').html(outputAgentTable(data));
-        $("#allAgentCheckbox").click(function() {
-            $(".agentCheckbox").prop("checked",$(".agentCheckbox").prop("checked"));
-        });
-    });
-}
-
-function outputAgentTable(data) {
-    var htmlTable = '<table class="table table-striped">';
-    htmlTable += '<thead><tr><th>' +
-      '<input type="checkbox" aria-label="..." id="allAgentCheckbox" class="agentCheckbox">' + '</th><th>ID</th><th>Description</th><th>Location</th></tr></thead>';
-    for(var key in data) {
-        htmlTable += '<tr><td>' + 
-        '<input type="checkbox" aria-label="..." class="agentCheckBox">';
-        htmlTable += '</td><td>' + key + '</td><td>' + data[key].Label +'</td><td>' + data[key].Location + '</td></tr>';
-    }
-    htmlTable += '</table>';
-
-    return htmlTable;
-}
-
 function loadAdhocScreen() {
-    
+    $('#adhocForm').attr('hidden',false);
+    $('#adhocResults').attr('hidden',false);
+    $.ajax({
+        url:"/api/agents"
+    }).done(function(data) {
+        $('#adhocAgentList').find('option').remove().end();
+        for(var key in data) {
+            $('#adhocAgentList').append($('<option>', {
+                value: key,
+                text: data[key].Label
+            }));
+        }
+    })
+}
+
+function postAdhocRequest() {
+    $.ajax({
+        type: "POST",
+        url: "/api/agent.control",
+        data: JSON.stringify({
+            Host: $('#adhocHost').val(),
+            Type: $('#adhocType').val(),
+            Agents: $('#adhocAgentList').val()
+        }),
+        dataType: "json"
+    }).done(function(data) {
+        if(data.code == 0) {
+            for(var id in data.results) {
+                console.log("Result: " + data.results[id]);
+            }
+        }
+    });
 }
 
 function addActiveSwitcher() {
@@ -41,7 +46,6 @@ function addActiveSwitcher() {
             case "adhocProbe":
                 loadAdhocScreen();
             case "agents": // load agents
-                loadAgents();
                 break;
             case "schedules": // load schedules
                 alert("Loading schedules.");
@@ -55,5 +59,7 @@ function addActiveSwitcher() {
 
 $(document).ready(function() {
     addActiveSwitcher();
-    loadAgents();
+    $('#adhocSubmit').click(function(e) {
+        postAdhocRequest();
+    });
 });

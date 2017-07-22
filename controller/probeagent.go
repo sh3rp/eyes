@@ -10,6 +10,7 @@ import (
 
 type ProbeAgent struct {
 	Id         string
+	IPAddress  string
 	Label      string
 	Location   string
 	Connection net.Conn

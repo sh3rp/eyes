@@ -3,12 +3,14 @@ package agent
 import (
 	"bytes"
 	"encoding/binary"
+	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 	"github.com/sh3rp/eyes/probe"
@@ -16,6 +18,7 @@ import (
 
 type ProbeAgent struct {
 	ID            string
+	IPAddress     string
 	Label         string
 	Location      string
 	Connection    net.Conn
@@ -24,7 +27,8 @@ type ProbeAgent struct {
 
 func NewAgent(label, location string) *ProbeAgent {
 	return &ProbeAgent{
-		ID:            GetLocalIP(),
+		ID:            genID(),
+		IPAddress:     GetLocalIP(),
 		Label:         label,
 		Location:      location,
 		ResultChannel: make(chan *messages.ProbeResult),
@@ -45,7 +49,7 @@ func (a *ProbeAgent) connect(host string) net.Conn {
 }
 
 func (a *ProbeAgent) Start(controllerHost string) {
-	log.Info().Msgf("Starting agent: %s (%s)", a.ID, a.Label)
+	log.Info().Msgf("Starting agent: %s (%s) - %s", a.ID, a.Label, a.IPAddress)
 	for {
 		var c net.Conn
 
@@ -57,10 +61,11 @@ func (a *ProbeAgent) Start(controllerHost string) {
 		a.Connection = c
 
 		hello := &messages.ProbeACK{
-			Type:     messages.ProbeACK_HELLO,
-			Id:       a.ID,
-			Label:    a.Label,
-			Location: a.Location,
+			Type:      messages.ProbeACK_HELLO,
+			Id:        a.ID,
+			Ipaddress: a.IPAddress,
+			Label:     a.Label,
+			Location:  a.Location,
 		}
 
 		msg, err := proto.Marshal(hello)
@@ -171,4 +176,11 @@ func GetLocalIP() string {
 		}
 	}
 	return ip
+}
+
+func genID() string {
+	t := time.Now()
+	entropy := rand.New(rand.NewSource(t.UnixNano()))
+	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	return id.String()
 }

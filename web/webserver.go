@@ -27,14 +27,14 @@ func NewWebserver() *Webserver {
 
 func (ws *Webserver) Start() {
 	ws.Controller.AddResultListener(ws.handleResult)
-	log.Info().Msgf("Webserver starting")
+	log.Info().Msgf("Webserver: starting")
 	http.HandleFunc("/api/agents", ws.listAgents)
 	http.HandleFunc("/api/agent.control", ws.controlAgent)
 	http.HandleFunc("/api/agent.test/", ws.testAgent)
 	http.HandleFunc("/api/results", ws.listResults)
 	http.HandleFunc("/api/results/", ws.showResult)
 
-	http.HandleFunc("/html/", ws.serveFile)
+	http.HandleFunc("/", ws.serveFile)
 	http.HandleFunc("/js/", ws.serveFile)
 	http.HandleFunc("/css/", ws.serveFile)
 	http.ListenAndServe(":8080", nil)
@@ -74,7 +74,7 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&request)
 
 		var resultIds []string
-
+		log.Info().Msgf("Agents: %v", request.Agents)
 		for _, agent := range request.Agents {
 			resultIds = append(resultIds, ws.Controller.SendProbe(agent, &messages.ProbeCommand{
 				Type: messages.ProbeCommand_TCP,

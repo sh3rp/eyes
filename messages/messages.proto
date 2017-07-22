@@ -9,10 +9,11 @@ message ProbeACK {
     }
     Type type = 1;
     string id = 2;
-    string auth = 3;
-    string label = 4;
-    string location = 5;
-    ProbeResult result = 6;
+    string ipaddress = 3;
+    string auth = 4;
+    string label = 5;
+    string location = 6;
+    ProbeResult result = 7;
 }
 
 message ProbeResult {

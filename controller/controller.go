@@ -126,6 +126,7 @@ func (c *ProbeController) handle(conn net.Conn) {
 
 	c.Agents[ack.Id] = &ProbeAgent{
 		Id:         ack.Id,
+		IPAddress:  ack.Ipaddress,
 		Label:      ack.Label,
 		Location:   ack.Location,
 		Connection: conn,

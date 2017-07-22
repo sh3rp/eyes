@@ -48,21 +48,58 @@
   </div><!-- /.container-fluid -->
 </nav>
 <div style="padding:15px">
-    <!-- Single button -->
-<div class="btn-group" style="padding:10px">
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Action <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a href="#">Schedule</a></li>
-    <li><a href="#">Ad-hoc</a></li>
-  </ul>
-</div>
-<div class="panel panel-default" id="viewPort">
+<div class="panel panel-default" id="adhocForm" hidden>
+    <div class="panel-heading">
+        <h3 class="panel-title">Probe</h3>
+    </div>
   <div class="panel-body">
-    
+
+    <!-- Adhoc Form -->
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="email">Host:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="adhocHost" placeholder="Enter host">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="pwd">Agents:</label>
+            <div class="col-sm-10"> 
+                <select name="agents" id="adhocAgentList" multiple></select>
+            </div>
+        </div>
+        <div class="form-group"> 
+            <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                    <select name="type" id="adhocType">
+                        <option name="tcp">TCP</option>
+                        <option name="icmp">ICMP</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group"> 
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="btn btn-default" id="adhocSubmit">Probe</button>
+            </div>
+        </div>
+    </form>
+    <!-- end Adhoc Form -->
   </div>
+
 </div>
+
+  <!-- Adhoc Results -->
+  <div class="panel panel-default" id="adhocResults" hidden>
+    <div class="panel-heading">
+        <h3 class="panel-title">Results</h3>
+    </div>
+    <table id="adhocResultTable">
+
+    </table>
+  </div>
+  <!-- end Adhoc Results -->
+
 </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
