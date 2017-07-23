@@ -13,9 +13,20 @@ type AgentControlRequest struct {
 }
 
 type AgentSchedule struct {
+	Repeat bool
 }
 
 type AgentControlResponse struct {
 	StandardResponse
 	Results []string `json:"results"`
+}
+
+type ResultResponse struct {
+	StandardResponse
+	ResultId      string
+	AgentId       string
+	AgentLabel    string
+	AgentLocation string
+	Timestamp     int64
+	Datapoints    []int64
 }

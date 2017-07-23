@@ -9,24 +9,26 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/controller"
 	"github.com/sh3rp/eyes/messages"
+	"github.com/sh3rp/eyes/util"
 )
 
 type Webserver struct {
-	Controller  *controller.ProbeController
-	ResultCache map[string]*messages.ProbeResult
+	Scheduler   *controller.AgentScheduler
+	ResultCache map[string][]*messages.ProbeResult
 }
 
 func NewWebserver() *Webserver {
-	controller := controller.NewProbeController()
-	go controller.Start()
+	ctrl := controller.NewProbeController()
+	go ctrl.Start()
+	scheduler := controller.NewAgentScheduler(ctrl)
 	return &Webserver{
-		Controller:  controller,
-		ResultCache: make(map[string]*messages.ProbeResult),
+		Scheduler:   scheduler,
+		ResultCache: make(map[string][]*messages.ProbeResult),
 	}
 }
 
 func (ws *Webserver) Start() {
-	ws.Controller.AddResultListener(ws.handleResult)
+	ws.Scheduler.Controller.AddResultListener(ws.handleResult)
 	log.Info().Msgf("Webserver: starting")
 	http.HandleFunc("/api/agents", ws.listAgents)
 	http.HandleFunc("/api/agent.control", ws.controlAgent)
@@ -65,7 +67,7 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *Webserver) handleResult(result *messages.ProbeResult) {
-	ws.ResultCache[result.CmdId] = result
+	ws.ResultCache[result.CmdId] = append(ws.ResultCache[result.CmdId], result)
 }
 
 func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
@@ -76,10 +78,13 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		var resultIds []string
 		log.Info().Msgf("Agents: %v", request.Agents)
 		for _, agent := range request.Agents {
-			resultIds = append(resultIds, ws.Controller.SendProbe(agent, &messages.ProbeCommand{
+			id := util.GenID()
+			ws.Scheduler.ScheduleEveryXSeconds(3, agent, &messages.ProbeCommand{
 				Type: messages.ProbeCommand_TCP,
 				Host: request.Host,
-			}))
+				Id:   id,
+			})
+			resultIds = append(resultIds, id)
 		}
 
 		response := &AgentControlResponse{}
@@ -94,7 +99,7 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *Webserver) listAgents(w http.ResponseWriter, r *http.Request) {
-	agents := ws.Controller.Agents
+	agents := ws.Scheduler.Controller.Agents
 	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(agents)
 }
@@ -104,7 +109,7 @@ func (ws *Webserver) testAgent(w http.ResponseWriter, r *http.Request) {
 	elements := strings.Split(url, "/")
 	id := elements[len(elements)-1]
 	log.Info().Msgf("Testing agent: %s", id)
-	ws.Controller.TestProbe(id)
+	ws.Scheduler.Controller.TestProbe(id)
 }
 
 func (ws *Webserver) listResults(w http.ResponseWriter, r *http.Request) {
@@ -118,6 +123,12 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 	elements := strings.Split(url, "/")
 	id := elements[len(elements)-1]
 	result := ws.ResultCache[id]
+	agent := ws.Scheduler.Controller.Agents[result[0].ProbeId]
+	response := &ResultResponse{}
+	response.AgentId = agent.Id
+	response.AgentLabel = agent.Label
+	response.AgentLocation = agent.Location
+	response.ResultId = result[0].CmdId
 	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }

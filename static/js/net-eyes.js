@@ -27,11 +27,31 @@ function postAdhocRequest() {
         dataType: "json"
     }).done(function(data) {
         if(data.code == 0) {
-            for(var id in data.results) {
-                console.log("Result: " + data.results[id]);
-            }
+            setInterval(function(){ updateAdhocResultsTable(data); },3000);
         }
     });
+}
+
+function updateAdhocResultsTable(data) {
+    $('#adhocResultTable').find('tr').remove().end();
+    $('#adhocResultTable').append('<tr><th>Id</th><th>Agent</th><th>Time</th><th>Result</th></tr>');
+    for(var idx in data.results) {
+        $.ajax({
+            url: "/api/results/"+data.results[idx]
+        }).done(function(result){
+            $('#adhocResultTable').append(
+                $('<tr>').append(
+                    $('<td>').append(result.cmdId)
+                ).append(
+                    $('<td>').append(result.probeId)
+                ).append(
+                    $('<td>').append(result.timestamp)
+                ).append(
+                    $('<td>').append(result.data)
+                )
+            );
+        });
+    }
 }
 
 function addActiveSwitcher() {
