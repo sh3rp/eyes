@@ -41,13 +41,13 @@ function updateAdhocResultsTable(data) {
         }).done(function(result){
             $('#adhocResultTable').append(
                 $('<tr>').append(
-                    $('<td>').append(result.cmdId)
+                    $('<td>').append(result.resultId)
                 ).append(
-                    $('<td>').append(result.probeId)
+                    $('<td>').append(result.agentId)
                 ).append(
-                    $('<td>').append(result.timestamp)
+                    $('<td>').append(result.agentLabel)
                 ).append(
-                    $('<td>').append(result.data)
+                    $('<td>').append(result.agentLocation)
                 )
             );
         });

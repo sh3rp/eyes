@@ -13,6 +13,7 @@ func main() {
 	flags()
 	log.Info().Msgf("Net-Eyes controller v%d.%d.%d", V_MAJOR, V_MINOR, V_PATCH)
 	webserver := web.NewWebserver()
+	log.Info().Msgf("Webserver: starting")
 	webserver.Start()
 }
 

@@ -14,6 +14,7 @@ func NewAgentScheduler(controller *ProbeController) *AgentScheduler {
 	defaultScheduler := gocron.NewScheduler()
 	schedulers := make(map[string]*gocron.Scheduler)
 	schedulers["default"] = defaultScheduler
+	go schedulers["default"].Start()
 	return &AgentScheduler{
 		Schedulers: schedulers,
 		Controller: controller,

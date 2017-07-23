@@ -1,10 +1,13 @@
 package web
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/controller"
@@ -122,13 +125,27 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	elements := strings.Split(url, "/")
 	id := elements[len(elements)-1]
-	result := ws.ResultCache[id]
-	agent := ws.Scheduler.Controller.Agents[result[0].ProbeId]
+
+	results := ws.ResultCache[id]
+	agent := ws.Scheduler.Controller.Agents[results[0].ProbeId]
+
 	response := &ResultResponse{}
 	response.AgentId = agent.Id
 	response.AgentLabel = agent.Label
 	response.AgentLocation = agent.Location
-	response.ResultId = result[0].CmdId
+	response.ResultId = results[0].CmdId
+	response.Datapoints = make(map[int64]int64)
+
+	for _, result := range results {
+		var latency time.Duration
+		buf := bytes.NewReader(result.Data)
+		binary.Read(buf, binary.LittleEndian, &latency)
+		response.Datapoints[result.Timestamp] = int64(latency.Seconds() * 1000)
+	}
+
+	response.StatusCode = 0
+	response.StatusMessage = "ok"
+
 	w.Header().Set("Content-type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(w).Encode(response)
 }
