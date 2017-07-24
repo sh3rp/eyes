@@ -113,6 +113,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 	for {
 		buf := make([]byte, 1024)
 		numRead, raddr, err := conn.ReadFrom(buf)
+		log.Info().Msgf("Read %d bytes", numRead)
 		if err != nil {
 			log.Error().Msgf("ReadFrom: %s\n", err)
 			return time.Now()
@@ -122,7 +123,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 		}
 		receiveTime = time.Now()
 		tcp := ParseTCP(buf[:numRead])
-		if tcp.Dst == port && (tcp.HasFlag(RST) || (tcp.HasFlag(SYN) && tcp.HasFlag(ACK))) {
+		if tcp.HasFlag(RST) || (tcp.HasFlag(SYN) && tcp.HasFlag(ACK)) {
 			break
 		}
 	}

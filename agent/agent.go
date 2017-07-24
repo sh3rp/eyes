@@ -3,17 +3,15 @@ package agent
 import (
 	"bytes"
 	"encoding/binary"
-	"math/rand"
 	"net"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 	"github.com/sh3rp/eyes/probe"
+	"github.com/sh3rp/eyes/util"
 )
 
 type ProbeAgent struct {
@@ -27,8 +25,8 @@ type ProbeAgent struct {
 
 func NewAgent(label, location string) *ProbeAgent {
 	return &ProbeAgent{
-		ID:            genID(),
-		IPAddress:     GetLocalIP(),
+		ID:            util.GenID(),
+		IPAddress:     util.GetLocalIP(),
 		Label:         label,
 		Location:      location,
 		ResultChannel: make(chan *messages.ProbeResult),
@@ -129,7 +127,7 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			Data:      []byte{0, 1, 2, 3, 4, 5, 6, 7},
 			Type:      messages.ProbeResult_NOOP,
 			Timestamp: time.Now().UnixNano(),
-			Host:      GetLocalIP(),
+			Host:      util.GetLocalIP(),
 			CmdId:     cmd.Id,
 		}
 	// run TCP probe
@@ -140,7 +138,7 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 		} else {
 			port = 80
 		}
-		latency := probe.GetLatency(GetLocalIP(), cmd.Host, uint16(port))
+		latency := probe.GetLatency(a.IPAddress, cmd.Host, uint16(port))
 		log.Info().Msgf("Latency: %v", latency)
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, latency)
@@ -158,31 +156,4 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			log.Error().Msgf("Error packing bytes: %v", err)
 		}
 	}
-}
-
-func GetLocalIP() string {
-	var ip string
-	addrs, err := net.InterfaceAddrs()
-
-	if err != nil {
-		return ""
-	}
-
-	for _, addr := range addrs {
-		if !strings.HasPrefix(addr.String(), "127.0.0.1") && !strings.Contains(addr.String(), ":") {
-			ipAddr := addr.String()
-			elements := strings.Split(ipAddr, "/")
-			ip = elements[0]
-			log.Info().Msgf("GetLocalIP: using %s as local addr", ip)
-			break
-		}
-	}
-	return ip
-}
-
-func genID() string {
-	t := time.Now()
-	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	id := ulid.MustNew(ulid.Timestamp(t), entropy)
-	return id.String()
 }
