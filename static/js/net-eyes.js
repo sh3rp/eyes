@@ -68,12 +68,36 @@ function updateAdhocResultsTable(data) {
                 y0: yAxis[0] - .3
             }
 
+        var layout = {
+            autosize: false,
+            width: 500,
+            height: 500,
+            margin: {
+                l: 50,
+                r: 50,
+                b: 100,
+                t: 100,
+                pad: 4
+            },
+            yaxis: {
+                autotick: false,
+                ticks: 'outside',
+                tick0: 0,
+                dtick: 0.25,
+                ticklen: 2,
+                tickwidth: 1,
+                tickcolor: '#000'
+            },
+            paper_bgcolor: '#ffffff',
+            plot_bgcolor: '#ffffff'
+        };
+
             var data = [line];
 
             console.log(xAxis);
             console.log(yAxis);
 
-            Plotly.newPlot('graph',data);
+            Plotly.newPlot('graph',data,layout);
         });
     }
 }
