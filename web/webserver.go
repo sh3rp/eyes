@@ -137,13 +137,13 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 		response.AgentLabel = agent.Label
 		response.AgentLocation = agent.Location
 		response.ResultId = results[0].CmdId
-		response.Datapoints = make(map[int64]int64)
+		response.Datapoints = make(map[int64]float64)
 
 		for _, result := range results {
 			var latency time.Duration
 			buf := bytes.NewReader(result.Data)
 			binary.Read(buf, binary.LittleEndian, &latency)
-			response.Datapoints[result.Timestamp] = int64(latency.Seconds() * 1000)
+			response.Datapoints[result.Timestamp] = latency.Seconds() * 1000
 		}
 	}
 
