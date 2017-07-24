@@ -169,7 +169,7 @@ func GetLocalIP() string {
 	}
 
 	for _, addr := range addrs {
-		if addr.String() != "127.0.0.1" && !strings.Contains(addr.String(), ":") {
+		if !strings.HasPrefix(addr.String(), "127.0.0.1") && !strings.Contains(addr.String(), ":") {
 			ipAddr := addr.String()
 			elements := strings.Split(ipAddr, "/")
 			ip = elements[0]
