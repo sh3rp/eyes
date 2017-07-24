@@ -27,7 +27,7 @@ function postAdhocRequest() {
         dataType: "json"
     }).done(function(data) {
         if(data.code == 0) {
-            setInterval(function(){ updateAdhocResultsTable(data); },3000);
+            setInterval(function(){ updateAdhocResultsTable(data); },1000);
         }
     });
 }

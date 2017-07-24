@@ -83,7 +83,7 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		log.Info().Msgf("Agents: %v", request.Agents)
 		for _, agent := range request.Agents {
 			id := util.GenID()
-			ws.Scheduler.ScheduleEveryXSeconds(3, agent, &messages.ProbeCommand{
+			ws.Scheduler.ScheduleEveryXSeconds(1, agent, &messages.ProbeCommand{
 				Type: messages.ProbeCommand_TCP,
 				Host: request.Host,
 				Id:   id,
