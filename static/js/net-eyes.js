@@ -56,7 +56,7 @@ function updateAdhocResultsTable(data) {
 
         var layout = {
             autosize: false,
-            width: 500,
+            width: 900,
             height: 500,
             margin: {
                 l: 50,
