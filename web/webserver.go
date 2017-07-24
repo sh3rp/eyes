@@ -136,6 +136,7 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 		response.AgentId = agent.Id
 		response.AgentLabel = agent.Label
 		response.AgentLocation = agent.Location
+		response.TargetHost = results[0].Host
 		response.ResultId = results[0].CmdId
 		response.Datapoints = make(map[int64]float64)
 

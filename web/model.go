@@ -27,5 +27,6 @@ type ResultResponse struct {
 	AgentId       string
 	AgentLabel    string
 	AgentLocation string
+	TargetHost    string
 	Datapoints    map[int64]float64
 }

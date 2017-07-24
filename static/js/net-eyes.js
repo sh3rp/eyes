@@ -33,25 +33,11 @@ function postAdhocRequest() {
 }
 
 function updateAdhocResultsTable(data) {
-    $('#adhocResultTable').find('tr').remove().end();
-    $('#adhocResultTable').append('<tr><th>Id</th><th>Agent</th><th>Time</th><th>Result</th><th>Graph</th></tr>');
     for(var idx in data.results) {
         $.ajax({
             url: "/api/results/"+data.results[idx]
         }).done(function(result){
-            $('#adhocResultTable').append(
-                $('<tr>').append(
-                    $('<td>').append(result.ResultId)
-                ).append(
-                    $('<td>').append(result.AgentId)
-                ).append(
-                    $('<td>').append(result.AgentLabel)
-                ).append(
-                    $('<td>').append(result.AgentLocation)
-                ).append(
-                    $('<td>').append('<div id="graph_'+result.ResultId+'"></div>')
-                )
-            );
+            $('#adhocGraphTitle').text(result.TargetHost);
             var xAxis = [];
             var yAxis = [];
 
