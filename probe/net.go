@@ -106,6 +106,9 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 		log.Error().Msgf("ListenIP: %s\n", err)
 		return time.Now()
 	}
+
+	conn.SetReadDeadline(time.Now().Add(time.Duration(3 * time.Second)))
+
 	var receiveTime time.Time
 	for {
 		buf := make([]byte, 1024)

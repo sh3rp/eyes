@@ -59,7 +59,7 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 	case "html":
 		w.Header().Set("Content-Type", "text/html")
 	case "css":
-		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Type", "text/css")
 	}
 
 	if err != nil {
@@ -70,6 +70,7 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *Webserver) handleResult(result *messages.ProbeResult) {
+	log.Info().Msgf("Caching result: %v", result)
 	ws.ResultCache[result.CmdId] = append(ws.ResultCache[result.CmdId], result)
 }
 
@@ -127,20 +128,23 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 	id := elements[len(elements)-1]
 
 	results := ws.ResultCache[id]
-	agent := ws.Scheduler.Controller.Agents[results[0].ProbeId]
 
 	response := &ResultResponse{}
-	response.AgentId = agent.Id
-	response.AgentLabel = agent.Label
-	response.AgentLocation = agent.Location
-	response.ResultId = results[0].CmdId
-	response.Datapoints = make(map[int64]int64)
 
-	for _, result := range results {
-		var latency time.Duration
-		buf := bytes.NewReader(result.Data)
-		binary.Read(buf, binary.LittleEndian, &latency)
-		response.Datapoints[result.Timestamp] = int64(latency.Seconds() * 1000)
+	if len(results) > 0 {
+		agent := ws.Scheduler.Controller.Agents[results[0].ProbeId]
+		response.AgentId = agent.Id
+		response.AgentLabel = agent.Label
+		response.AgentLocation = agent.Location
+		response.ResultId = results[0].CmdId
+		response.Datapoints = make(map[int64]int64)
+
+		for _, result := range results {
+			var latency time.Duration
+			buf := bytes.NewReader(result.Data)
+			binary.Read(buf, binary.LittleEndian, &latency)
+			response.Datapoints[result.Timestamp] = int64(latency.Seconds() * 1000)
+		}
 	}
 
 	response.StatusCode = 0

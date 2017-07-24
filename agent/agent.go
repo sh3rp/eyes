@@ -141,9 +141,11 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
 			port = 80
 		}
 		latency := probe.GetLatency(GetLocalIP(), cmd.Host, uint16(port))
+		log.Info().Msgf("Latency: %v", latency)
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, latency)
 		if err == nil {
+			log.Info().Msgf("Sending results")
 			a.ResultChannel <- &messages.ProbeResult{
 				Host:      cmd.Host,
 				ProbeId:   a.ID,
