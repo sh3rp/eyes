@@ -64,6 +64,7 @@ function updateAdhocResultsTable(data) {
                 x: xAxis,
                 y: yAxis,
                 type: 'scatter',
+                dy: .1
             }
 
             var data = [line];
