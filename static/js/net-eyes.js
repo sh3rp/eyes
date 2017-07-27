@@ -21,8 +21,7 @@ function postCancelRequest(id) {
         url: "/api/agent.cancel/"+id,
     }).done(function(data) {
         $('#adhocGraph').attr('hidden',true);
-        Plotly.purge(adhocGraphImage);
-        $('#adhocGraphImage').clear();
+        $("[id^='adhocGraphImage_']").remove();
     });
 }
 
