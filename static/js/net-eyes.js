@@ -22,8 +22,11 @@ function postCancelRequest(id) {
     }).done(function(data) {
         $('#adhocGraph').attr('hidden',true);
         $("[id^='adhocGraphImage_']").remove();
+        clearInterval(intervalId);
     });
 }
+
+var intervalId;
 
 function postAdhocRequest() {
     $.ajax({
@@ -44,7 +47,7 @@ function postAdhocRequest() {
             for(var idx in data.results) {
                 $('#adhocGraphImage').append('<div id="adhocGraphImage_' + data.results[idx]+'"></div>');
             }
-            setInterval(function(){ updateAdhocResultsTable(data); },1000);
+            intervalID = setInterval(function(){ updateAdhocResultsTable(data); },1000);
         }
     });
 }
