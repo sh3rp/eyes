@@ -16,8 +16,9 @@ import (
 )
 
 type Webserver struct {
-	Scheduler   *controller.AgentScheduler
-	ResultCache map[string][]*messages.ProbeResult
+	Scheduler     *controller.AgentScheduler
+	ResultCache   map[string][]*messages.ProbeResult
+	MaxDataPoints map[string]int
 }
 
 func NewWebserver() *Webserver {
@@ -25,8 +26,9 @@ func NewWebserver() *Webserver {
 	go ctrl.Start()
 	scheduler := controller.NewAgentScheduler(ctrl)
 	return &Webserver{
-		Scheduler:   scheduler,
-		ResultCache: make(map[string][]*messages.ProbeResult),
+		Scheduler:     scheduler,
+		ResultCache:   make(map[string][]*messages.ProbeResult),
+		MaxDataPoints: make(map[string]int),
 	}
 }
 
@@ -90,6 +92,7 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 				Id:   id,
 			})
 			resultIds = append(resultIds, id)
+			ws.MaxDataPoints[id] = request.MaxPoints
 		}
 
 		response := &AgentControlResponse{}
@@ -153,6 +156,10 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 		response.TargetHost = results[0].Host
 		response.ResultId = results[0].CmdId
 		response.Datapoints = make(map[int64]float64)
+
+		if len(results) >= ws.MaxDataPoints[results[0].CmdId] {
+			results = results[len(results)-ws.MaxDataPoints[results[0].CmdId]:]
+		}
 
 		for _, result := range results {
 			var latency time.Duration

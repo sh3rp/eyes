@@ -35,7 +35,8 @@ function postAdhocRequest() {
         data: JSON.stringify({
             Host: $('#adhocHost').val(),
             Type: $('#adhocType').val(),
-            Agents: $('#adhocAgentList').val()
+            Agents: $('#adhocAgentList').val(),
+            MaxPoints: $('#adhocMaxPoints').val()
         }),
         dataType: "json"
     }).done(function(data) {
