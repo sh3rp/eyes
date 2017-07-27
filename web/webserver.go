@@ -83,7 +83,6 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&request)
 
 		var resultIds []string
-		log.Info().Msgf("Agents: %v", request.Agents)
 		for _, agent := range request.Agents {
 			id := util.GenID()
 			ws.Scheduler.ScheduleEveryXSeconds(1, agent, &messages.ProbeCommand{
@@ -93,7 +92,6 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 			})
 			resultIds = append(resultIds, id)
 			ws.MaxDataPoints[id] = request.MaxPoints
-			log.Info().Msgf("Setting max points %v", ws.MaxDataPoints[id])
 		}
 
 		response := &AgentControlResponse{}
@@ -158,8 +156,6 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 		response.ResultId = results[0].CmdId
 		response.Datapoints = make(map[int64]float64)
 
-		log.Info().Msgf("Len results = %v", len(results))
-		log.Info().Msgf("Max Datapoints = %v", ws.MaxDataPoints[results[0].CmdId])
 		if len(results) >= ws.MaxDataPoints[results[0].CmdId] {
 			results = results[len(results)-ws.MaxDataPoints[results[0].CmdId]:]
 		}
