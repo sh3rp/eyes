@@ -42,6 +42,9 @@ function postAdhocRequest() {
         });
         if(data.code == 0) {
             $('#adhocGraph').attr('hidden',false);
+            for(var idx in data.results) {
+                $('#adhocGraphImage').append('<div id="adhocGraphImage_' + data.results[idx]+'"></div>');
+            }
             setInterval(function(){ updateAdhocResultsTable(data); },1000);
         }
     });
@@ -61,12 +64,12 @@ function updateAdhocResultsTable(data) {
             }  
 
             MG.data_graphic({
-                title: 'Latency',
+                title: 'Latency ('+result.AgentLocation+')',
                 description: 'Lol.',
                 data: data, // an array of objects, such as [{value:100,date:...},...]
                 width: 600,
                 height: 250,
-                target: '#adhocGraphImage', // the html element that the graphic is inserted in
+                target: '#adhocGraphImage_'+result.ResultId, // the html element that the graphic is inserted in
                 x_accessor: 'time',  // the key that accesses the x value
                 y_accessor: 'latency', // the key that accesses the y value
                 transition_on_update: true
