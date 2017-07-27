@@ -35,6 +35,7 @@ func (ws *Webserver) Start() {
 	log.Info().Msgf("Webserver: starting")
 	http.HandleFunc("/api/agents", ws.listAgents)
 	http.HandleFunc("/api/agent.control", ws.controlAgent)
+	http.HandleFunc("/api/agent.cancel/", ws.cancel)
 	http.HandleFunc("/api/agent.test/", ws.testAgent)
 	http.HandleFunc("/api/results", ws.listResults)
 	http.HandleFunc("/api/results/", ws.showResult)
@@ -96,6 +97,7 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		response.StatusMessage = "ok"
 		response.Results = resultIds
 
+		w.Header().Set("Content-type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	} else {
 		log.Error().Msgf("POST required for this endpoint")
@@ -120,6 +122,18 @@ func (ws *Webserver) listResults(w http.ResponseWriter, r *http.Request) {
 	results := ws.ResultCache
 	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(results)
+}
+
+func (ws *Webserver) cancel(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Path
+	elements := strings.Split(url, "/")
+	id := elements[len(elements)-1]
+	ws.Scheduler.Cancel(id)
+	response := &StandardResponse{}
+	response.StatusCode = 0
+	response.StatusMessage = "ok"
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {

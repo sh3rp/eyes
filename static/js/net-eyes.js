@@ -1,7 +1,7 @@
 
 function loadAdhocScreen() {
     $('#adhocForm').attr('hidden',false);
-    $('#adhocResults').attr('hidden',false);
+    $('#adhocGraph').attr('hidden',false);
     $.ajax({
         url:"/api/agents"
     }).done(function(data) {
@@ -15,6 +15,17 @@ function loadAdhocScreen() {
     })
 }
 
+function postCancelRequest(id) {
+    $.ajax({
+        type: "POST",
+        url: "/api/agent.cancel/"+id,
+    }).done(function(data) {
+        $('#adhocGraph').attr('hidden',true);
+        Plotly.purge(adhocGraphImage);
+        $('#adhocGraphImage').clear();
+    });
+}
+
 function postAdhocRequest() {
     $.ajax({
         type: "POST",
@@ -26,7 +37,11 @@ function postAdhocRequest() {
         }),
         dataType: "json"
     }).done(function(data) {
+        $('#adhocCancel').click(function() {
+            postCancelRequest(data.results[0]);
+        });
         if(data.code == 0) {
+            $('#adhocGraph').attr('hidden',false);
             setInterval(function(){ updateAdhocResultsTable(data); },1000);
         }
     });
@@ -38,52 +53,25 @@ function updateAdhocResultsTable(data) {
             url: "/api/results/"+data.results[idx]
         }).done(function(result){
             $('#adhocGraphTitle').text(result.TargetHost);
-            var xAxis = [];
-            var yAxis = [];
+            var data = [];
 
             for(var k in result.Datapoints) {
-                xAxis.push(k);
-                yAxis.push(result.Datapoints[k]);
-            }
+                var point = {'time':k,'latency':result.Datapoints[k]};
+                data.push(point);
+            }  
 
-            var line = {
-                x: xAxis,
-                y: yAxis,
-                type: 'scatter',
-                dy: .1,
-                y0: yAxis[0] - .3
-            }
+            MG.data_graphic({
+                title: 'Latency',
+                description: 'Lol.',
+                data: data, // an array of objects, such as [{value:100,date:...},...]
+                width: 600,
+                height: 250,
+                target: '#adhocGraphImage', // the html element that the graphic is inserted in
+                x_accessor: 'time',  // the key that accesses the x value
+                y_accessor: 'latency', // the key that accesses the y value
+                transition_on_update: true
+            });
 
-        var layout = {
-            autosize: false,
-            width: 900,
-            height: 500,
-            margin: {
-                l: 50,
-                r: 50,
-                b: 100,
-                t: 100,
-                pad: 4
-            },
-            yaxis: {
-                autotick: false,
-                ticks: 'outside',
-                tick0: 0,
-                dtick: 0.25,
-                ticklen: 2,
-                tickwidth: 1,
-                tickcolor: '#000'
-            },
-            paper_bgcolor: '#ffffff',
-            plot_bgcolor: '#ffffff'
-        };
-
-            var data = [line];
-
-            console.log(xAxis);
-            console.log(yAxis);
-
-            Plotly.newPlot('graph',data,layout);
         });
     }
 }

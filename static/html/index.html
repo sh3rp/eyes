@@ -5,7 +5,7 @@
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
+<link rel="stylesheet" href="/css/metricsgraphics.css">
 <!-- Latest compiled and minified JavaScript -->
     
 <body>
@@ -90,11 +90,14 @@
 </div>
 
   <!-- Adhoc Results -->
-  <div class="panel panel-default">
+  <div class="panel panel-default" id="adhocGraph" hidden>
     <div class="panel-heading">
         <h3 class="panel-title" id="adhocGraphTitle"></h3>
     </div>
-    <div class="panel-body" id="graph">
+    <div class="panel-body" id="adhocGraphImage">
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="btn btn-default" id="adhocCancel">Cancel</button>
     </div>
   </div>
 
@@ -108,7 +111,8 @@
     <script src="/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="/js/plotly-latest.min.js"></script>
+    <script src="/js/d3.min.js"></script>
+    <script src="/js/metricsgraphics.min.js"></script>
     <script src="/js/net-eyes.js"></script>
 </body>
 </html>
