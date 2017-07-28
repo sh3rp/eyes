@@ -8,9 +8,11 @@ It is generated from these files:
 	messages.proto
 
 It has these top-level messages:
-	ProbeACK
-	ProbeResult
-	ProbeCommand
+	AgentMessage
+	AgentInfo
+	AgentProbeResult
+	ControllerMessage
+	ControllerLatencyRequest
 */
 package messages
 
@@ -29,229 +31,319 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type ProbeACK_Type int32
+type AgentMessage_Type int32
 
 const (
-	ProbeACK_HELLO  ProbeACK_Type = 0
-	ProbeACK_RESULT ProbeACK_Type = 1
+	AgentMessage_HELLO  AgentMessage_Type = 0
+	AgentMessage_RESULT AgentMessage_Type = 1
+	AgentMessage_INFO   AgentMessage_Type = 2
 )
 
-var ProbeACK_Type_name = map[int32]string{
+var AgentMessage_Type_name = map[int32]string{
 	0: "HELLO",
 	1: "RESULT",
+	2: "INFO",
 }
-var ProbeACK_Type_value = map[string]int32{
+var AgentMessage_Type_value = map[string]int32{
 	"HELLO":  0,
 	"RESULT": 1,
+	"INFO":   2,
 }
 
-func (x ProbeACK_Type) String() string {
-	return proto.EnumName(ProbeACK_Type_name, int32(x))
+func (x AgentMessage_Type) String() string {
+	return proto.EnumName(AgentMessage_Type_name, int32(x))
 }
-func (ProbeACK_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
+func (AgentMessage_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
 
-type ProbeResult_Type int32
+type AgentProbeResult_Type int32
 
 const (
-	ProbeResult_NOOP ProbeResult_Type = 0
-	ProbeResult_TCP  ProbeResult_Type = 1
-	ProbeResult_ICMP ProbeResult_Type = 2
+	AgentProbeResult_TCP        AgentProbeResult_Type = 0
+	AgentProbeResult_ICMP       AgentProbeResult_Type = 1
+	AgentProbeResult_TRACEROUTE AgentProbeResult_Type = 2
 )
 
-var ProbeResult_Type_name = map[int32]string{
-	0: "NOOP",
-	1: "TCP",
-	2: "ICMP",
+var AgentProbeResult_Type_name = map[int32]string{
+	0: "TCP",
+	1: "ICMP",
+	2: "TRACEROUTE",
 }
-var ProbeResult_Type_value = map[string]int32{
-	"NOOP": 0,
-	"TCP":  1,
-	"ICMP": 2,
+var AgentProbeResult_Type_value = map[string]int32{
+	"TCP":        0,
+	"ICMP":       1,
+	"TRACEROUTE": 2,
 }
 
-func (x ProbeResult_Type) String() string {
-	return proto.EnumName(ProbeResult_Type_name, int32(x))
+func (x AgentProbeResult_Type) String() string {
+	return proto.EnumName(AgentProbeResult_Type_name, int32(x))
 }
-func (ProbeResult_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{1, 0} }
+func (AgentProbeResult_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0} }
 
-type ProbeCommand_Type int32
+type ControllerMessage_Type int32
 
 const (
-	ProbeCommand_NOOP ProbeCommand_Type = 0
-	ProbeCommand_TCP  ProbeCommand_Type = 1
-	ProbeCommand_ICMP ProbeCommand_Type = 2
+	ControllerMessage_AGENT_INFO_REQUEST ControllerMessage_Type = 0
+	ControllerMessage_LATENCY_REQUEST    ControllerMessage_Type = 1
 )
 
-var ProbeCommand_Type_name = map[int32]string{
-	0: "NOOP",
-	1: "TCP",
-	2: "ICMP",
+var ControllerMessage_Type_name = map[int32]string{
+	0: "AGENT_INFO_REQUEST",
+	1: "LATENCY_REQUEST",
 }
-var ProbeCommand_Type_value = map[string]int32{
-	"NOOP": 0,
-	"TCP":  1,
-	"ICMP": 2,
+var ControllerMessage_Type_value = map[string]int32{
+	"AGENT_INFO_REQUEST": 0,
+	"LATENCY_REQUEST":    1,
 }
 
-func (x ProbeCommand_Type) String() string {
-	return proto.EnumName(ProbeCommand_Type_name, int32(x))
+func (x ControllerMessage_Type) String() string {
+	return proto.EnumName(ControllerMessage_Type_name, int32(x))
 }
-func (ProbeCommand_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0} }
+func (ControllerMessage_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{3, 0} }
 
-type ProbeACK struct {
-	Type      ProbeACK_Type `protobuf:"varint,1,opt,name=type,enum=messages.ProbeACK_Type" json:"type,omitempty"`
-	Id        string        `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
-	Ipaddress string        `protobuf:"bytes,3,opt,name=ipaddress" json:"ipaddress,omitempty"`
-	Auth      string        `protobuf:"bytes,4,opt,name=auth" json:"auth,omitempty"`
-	Label     string        `protobuf:"bytes,5,opt,name=label" json:"label,omitempty"`
-	Location  string        `protobuf:"bytes,6,opt,name=location" json:"location,omitempty"`
-	Result    *ProbeResult  `protobuf:"bytes,7,opt,name=result" json:"result,omitempty"`
+type ControllerLatencyRequest_Type int32
+
+const (
+	ControllerLatencyRequest_TCP        ControllerLatencyRequest_Type = 0
+	ControllerLatencyRequest_ICMP       ControllerLatencyRequest_Type = 1
+	ControllerLatencyRequest_TRACEROUTE ControllerLatencyRequest_Type = 2
+)
+
+var ControllerLatencyRequest_Type_name = map[int32]string{
+	0: "TCP",
+	1: "ICMP",
+	2: "TRACEROUTE",
+}
+var ControllerLatencyRequest_Type_value = map[string]int32{
+	"TCP":        0,
+	"ICMP":       1,
+	"TRACEROUTE": 2,
 }
 
-func (m *ProbeACK) Reset()                    { *m = ProbeACK{} }
-func (m *ProbeACK) String() string            { return proto.CompactTextString(m) }
-func (*ProbeACK) ProtoMessage()               {}
-func (*ProbeACK) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (x ControllerLatencyRequest_Type) String() string {
+	return proto.EnumName(ControllerLatencyRequest_Type_name, int32(x))
+}
+func (ControllerLatencyRequest_Type) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{4, 0}
+}
 
-func (m *ProbeACK) GetType() ProbeACK_Type {
+type AgentMessage struct {
+	Type   AgentMessage_Type `protobuf:"varint,1,opt,name=type,enum=messages.AgentMessage_Type" json:"type,omitempty"`
+	Id     string            `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
+	Auth   string            `protobuf:"bytes,3,opt,name=auth" json:"auth,omitempty"`
+	Result *AgentProbeResult `protobuf:"bytes,4,opt,name=result" json:"result,omitempty"`
+	Info   *AgentInfo        `protobuf:"bytes,5,opt,name=info" json:"info,omitempty"`
+}
+
+func (m *AgentMessage) Reset()                    { *m = AgentMessage{} }
+func (m *AgentMessage) String() string            { return proto.CompactTextString(m) }
+func (*AgentMessage) ProtoMessage()               {}
+func (*AgentMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+func (m *AgentMessage) GetType() AgentMessage_Type {
 	if m != nil {
 		return m.Type
 	}
-	return ProbeACK_HELLO
+	return AgentMessage_HELLO
 }
 
-func (m *ProbeACK) GetId() string {
+func (m *AgentMessage) GetId() string {
 	if m != nil {
 		return m.Id
 	}
 	return ""
 }
 
-func (m *ProbeACK) GetIpaddress() string {
-	if m != nil {
-		return m.Ipaddress
-	}
-	return ""
-}
-
-func (m *ProbeACK) GetAuth() string {
+func (m *AgentMessage) GetAuth() string {
 	if m != nil {
 		return m.Auth
 	}
 	return ""
 }
 
-func (m *ProbeACK) GetLabel() string {
-	if m != nil {
-		return m.Label
-	}
-	return ""
-}
-
-func (m *ProbeACK) GetLocation() string {
-	if m != nil {
-		return m.Location
-	}
-	return ""
-}
-
-func (m *ProbeACK) GetResult() *ProbeResult {
+func (m *AgentMessage) GetResult() *AgentProbeResult {
 	if m != nil {
 		return m.Result
 	}
 	return nil
 }
 
-type ProbeResult struct {
-	Type      ProbeResult_Type `protobuf:"varint,1,opt,name=type,enum=messages.ProbeResult_Type" json:"type,omitempty"`
-	CmdId     string           `protobuf:"bytes,2,opt,name=cmdId" json:"cmdId,omitempty"`
-	Host      string           `protobuf:"bytes,3,opt,name=host" json:"host,omitempty"`
-	ProbeId   string           `protobuf:"bytes,4,opt,name=probeId" json:"probeId,omitempty"`
-	Timestamp int64            `protobuf:"varint,5,opt,name=timestamp" json:"timestamp,omitempty"`
-	Data      []byte           `protobuf:"bytes,6,opt,name=data,proto3" json:"data,omitempty"`
+func (m *AgentMessage) GetInfo() *AgentInfo {
+	if m != nil {
+		return m.Info
+	}
+	return nil
 }
 
-func (m *ProbeResult) Reset()                    { *m = ProbeResult{} }
-func (m *ProbeResult) String() string            { return proto.CompactTextString(m) }
-func (*ProbeResult) ProtoMessage()               {}
-func (*ProbeResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+type AgentInfo struct {
+	Os           string `protobuf:"bytes,1,opt,name=os" json:"os,omitempty"`
+	Hostname     string `protobuf:"bytes,2,opt,name=hostname" json:"hostname,omitempty"`
+	AgentVersion string `protobuf:"bytes,3,opt,name=agentVersion" json:"agentVersion,omitempty"`
+	Ipaddress    string `protobuf:"bytes,4,opt,name=ipaddress" json:"ipaddress,omitempty"`
+	Label        string `protobuf:"bytes,5,opt,name=label" json:"label,omitempty"`
+	Location     string `protobuf:"bytes,6,opt,name=location" json:"location,omitempty"`
+}
 
-func (m *ProbeResult) GetType() ProbeResult_Type {
+func (m *AgentInfo) Reset()                    { *m = AgentInfo{} }
+func (m *AgentInfo) String() string            { return proto.CompactTextString(m) }
+func (*AgentInfo) ProtoMessage()               {}
+func (*AgentInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *AgentInfo) GetOs() string {
+	if m != nil {
+		return m.Os
+	}
+	return ""
+}
+
+func (m *AgentInfo) GetHostname() string {
+	if m != nil {
+		return m.Hostname
+	}
+	return ""
+}
+
+func (m *AgentInfo) GetAgentVersion() string {
+	if m != nil {
+		return m.AgentVersion
+	}
+	return ""
+}
+
+func (m *AgentInfo) GetIpaddress() string {
+	if m != nil {
+		return m.Ipaddress
+	}
+	return ""
+}
+
+func (m *AgentInfo) GetLabel() string {
+	if m != nil {
+		return m.Label
+	}
+	return ""
+}
+
+func (m *AgentInfo) GetLocation() string {
+	if m != nil {
+		return m.Location
+	}
+	return ""
+}
+
+type AgentProbeResult struct {
+	Type      AgentProbeResult_Type `protobuf:"varint,1,opt,name=type,enum=messages.AgentProbeResult_Type" json:"type,omitempty"`
+	CmdId     string                `protobuf:"bytes,2,opt,name=cmdId" json:"cmdId,omitempty"`
+	Host      string                `protobuf:"bytes,3,opt,name=host" json:"host,omitempty"`
+	ProbeId   string                `protobuf:"bytes,4,opt,name=probeId" json:"probeId,omitempty"`
+	Timestamp int64                 `protobuf:"varint,5,opt,name=timestamp" json:"timestamp,omitempty"`
+	Data      []byte                `protobuf:"bytes,6,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (m *AgentProbeResult) Reset()                    { *m = AgentProbeResult{} }
+func (m *AgentProbeResult) String() string            { return proto.CompactTextString(m) }
+func (*AgentProbeResult) ProtoMessage()               {}
+func (*AgentProbeResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *AgentProbeResult) GetType() AgentProbeResult_Type {
 	if m != nil {
 		return m.Type
 	}
-	return ProbeResult_NOOP
+	return AgentProbeResult_TCP
 }
 
-func (m *ProbeResult) GetCmdId() string {
+func (m *AgentProbeResult) GetCmdId() string {
 	if m != nil {
 		return m.CmdId
 	}
 	return ""
 }
 
-func (m *ProbeResult) GetHost() string {
+func (m *AgentProbeResult) GetHost() string {
 	if m != nil {
 		return m.Host
 	}
 	return ""
 }
 
-func (m *ProbeResult) GetProbeId() string {
+func (m *AgentProbeResult) GetProbeId() string {
 	if m != nil {
 		return m.ProbeId
 	}
 	return ""
 }
 
-func (m *ProbeResult) GetTimestamp() int64 {
+func (m *AgentProbeResult) GetTimestamp() int64 {
 	if m != nil {
 		return m.Timestamp
 	}
 	return 0
 }
 
-func (m *ProbeResult) GetData() []byte {
+func (m *AgentProbeResult) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-type ProbeCommand struct {
-	Id         string            `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
-	Host       string            `protobuf:"bytes,2,opt,name=host" json:"host,omitempty"`
-	Type       ProbeCommand_Type `protobuf:"varint,3,opt,name=type,enum=messages.ProbeCommand_Type" json:"type,omitempty"`
-	Parameters map[string]string `protobuf:"bytes,4,rep,name=parameters" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+type ControllerMessage struct {
+	Type           ControllerMessage_Type    `protobuf:"varint,1,opt,name=type,enum=messages.ControllerMessage_Type" json:"type,omitempty"`
+	LatencyRequest *ControllerLatencyRequest `protobuf:"bytes,2,opt,name=latencyRequest" json:"latencyRequest,omitempty"`
 }
 
-func (m *ProbeCommand) Reset()                    { *m = ProbeCommand{} }
-func (m *ProbeCommand) String() string            { return proto.CompactTextString(m) }
-func (*ProbeCommand) ProtoMessage()               {}
-func (*ProbeCommand) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (m *ControllerMessage) Reset()                    { *m = ControllerMessage{} }
+func (m *ControllerMessage) String() string            { return proto.CompactTextString(m) }
+func (*ControllerMessage) ProtoMessage()               {}
+func (*ControllerMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
-func (m *ProbeCommand) GetId() string {
+func (m *ControllerMessage) GetType() ControllerMessage_Type {
 	if m != nil {
-		return m.Id
+		return m.Type
+	}
+	return ControllerMessage_AGENT_INFO_REQUEST
+}
+
+func (m *ControllerMessage) GetLatencyRequest() *ControllerLatencyRequest {
+	if m != nil {
+		return m.LatencyRequest
+	}
+	return nil
+}
+
+type ControllerLatencyRequest struct {
+	Type       ControllerLatencyRequest_Type `protobuf:"varint,1,opt,name=type,enum=messages.ControllerLatencyRequest_Type" json:"type,omitempty"`
+	ResultId   string                        `protobuf:"bytes,2,opt,name=resultId" json:"resultId,omitempty"`
+	Host       string                        `protobuf:"bytes,3,opt,name=host" json:"host,omitempty"`
+	Parameters map[string]string             `protobuf:"bytes,4,rep,name=parameters" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+}
+
+func (m *ControllerLatencyRequest) Reset()                    { *m = ControllerLatencyRequest{} }
+func (m *ControllerLatencyRequest) String() string            { return proto.CompactTextString(m) }
+func (*ControllerLatencyRequest) ProtoMessage()               {}
+func (*ControllerLatencyRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *ControllerLatencyRequest) GetType() ControllerLatencyRequest_Type {
+	if m != nil {
+		return m.Type
+	}
+	return ControllerLatencyRequest_TCP
+}
+
+func (m *ControllerLatencyRequest) GetResultId() string {
+	if m != nil {
+		return m.ResultId
 	}
 	return ""
 }
 
-func (m *ProbeCommand) GetHost() string {
+func (m *ControllerLatencyRequest) GetHost() string {
 	if m != nil {
 		return m.Host
 	}
 	return ""
 }
 
-func (m *ProbeCommand) GetType() ProbeCommand_Type {
-	if m != nil {
-		return m.Type
-	}
-	return ProbeCommand_NOOP
-}
-
-func (m *ProbeCommand) GetParameters() map[string]string {
+func (m *ControllerLatencyRequest) GetParameters() map[string]string {
 	if m != nil {
 		return m.Parameters
 	}
@@ -259,43 +351,56 @@ func (m *ProbeCommand) GetParameters() map[string]string {
 }
 
 func init() {
-	proto.RegisterType((*ProbeACK)(nil), "messages.ProbeACK")
-	proto.RegisterType((*ProbeResult)(nil), "messages.ProbeResult")
-	proto.RegisterType((*ProbeCommand)(nil), "messages.ProbeCommand")
-	proto.RegisterEnum("messages.ProbeACK_Type", ProbeACK_Type_name, ProbeACK_Type_value)
-	proto.RegisterEnum("messages.ProbeResult_Type", ProbeResult_Type_name, ProbeResult_Type_value)
-	proto.RegisterEnum("messages.ProbeCommand_Type", ProbeCommand_Type_name, ProbeCommand_Type_value)
+	proto.RegisterType((*AgentMessage)(nil), "messages.AgentMessage")
+	proto.RegisterType((*AgentInfo)(nil), "messages.AgentInfo")
+	proto.RegisterType((*AgentProbeResult)(nil), "messages.AgentProbeResult")
+	proto.RegisterType((*ControllerMessage)(nil), "messages.ControllerMessage")
+	proto.RegisterType((*ControllerLatencyRequest)(nil), "messages.ControllerLatencyRequest")
+	proto.RegisterEnum("messages.AgentMessage_Type", AgentMessage_Type_name, AgentMessage_Type_value)
+	proto.RegisterEnum("messages.AgentProbeResult_Type", AgentProbeResult_Type_name, AgentProbeResult_Type_value)
+	proto.RegisterEnum("messages.ControllerMessage_Type", ControllerMessage_Type_name, ControllerMessage_Type_value)
+	proto.RegisterEnum("messages.ControllerLatencyRequest_Type", ControllerLatencyRequest_Type_name, ControllerLatencyRequest_Type_value)
 }
 
 func init() { proto.RegisterFile("messages.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 420 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xdf, 0xaa, 0xd3, 0x30,
-	0x1c, 0xc7, 0x4f, 0xda, 0xae, 0xeb, 0x7e, 0x3b, 0xcc, 0x12, 0x8e, 0x18, 0xa6, 0x42, 0xa9, 0x20,
-	0x05, 0xb1, 0xc2, 0xbc, 0x11, 0xc1, 0x0b, 0x29, 0x13, 0x87, 0xd3, 0x95, 0x38, 0x1f, 0x20, 0x3b,
-	0x09, 0x9e, 0x62, 0xbb, 0x96, 0x26, 0x13, 0xfa, 0x14, 0xbe, 0x9e, 0xaf, 0xe2, 0x9d, 0x24, 0x27,
-	0xed, 0xa9, 0x43, 0xc1, 0xbb, 0xdf, 0x7f, 0xbe, 0xdf, 0x4f, 0x02, 0x8b, 0x4a, 0x48, 0xc9, 0xbe,
-	0x0a, 0x99, 0x36, 0x6d, 0xad, 0x6a, 0x1c, 0xf4, 0x79, 0xfc, 0x0b, 0x41, 0x90, 0xb7, 0xf5, 0x41,
-	0xbc, 0xcd, 0x3e, 0xe0, 0x67, 0xe0, 0xa9, 0xae, 0x11, 0x04, 0x45, 0x28, 0x59, 0xac, 0x1e, 0xa4,
-	0xc3, 0x56, 0x3f, 0x91, 0xee, 0xbb, 0x46, 0x50, 0x33, 0x84, 0x17, 0xe0, 0x14, 0x9c, 0x38, 0x11,
-	0x4a, 0x66, 0xd4, 0x29, 0x38, 0x7e, 0x04, 0xb3, 0xa2, 0x61, 0x9c, 0xb7, 0x42, 0x4a, 0xe2, 0x9a,
-	0xf2, 0x5d, 0x01, 0x63, 0xf0, 0xd8, 0x49, 0xdd, 0x10, 0xcf, 0x34, 0x4c, 0x8c, 0xaf, 0x60, 0x52,
-	0xb2, 0x83, 0x28, 0xc9, 0xc4, 0x14, 0x6f, 0x13, 0xbc, 0x84, 0xa0, 0xac, 0xaf, 0x99, 0x2a, 0xea,
-	0x23, 0xf1, 0x4d, 0x63, 0xc8, 0xf1, 0x73, 0xf0, 0x5b, 0x21, 0x4f, 0xa5, 0x22, 0xd3, 0x08, 0x25,
-	0xf3, 0xd5, 0xfd, 0x33, 0x89, 0xd4, 0x34, 0xa9, 0x1d, 0x8a, 0x1f, 0x83, 0xa7, 0x05, 0xe3, 0x19,
-	0x4c, 0xde, 0xaf, 0xb7, 0xdb, 0x5d, 0x78, 0x81, 0x01, 0x7c, 0xba, 0xfe, 0xfc, 0x65, 0xbb, 0x0f,
-	0x51, 0xfc, 0x13, 0xc1, 0x7c, 0xb4, 0x86, 0xd3, 0x3f, 0xec, 0x2f, 0xff, 0x7a, 0x7b, 0x4c, 0xe0,
-	0x0a, 0x26, 0xd7, 0x15, 0xdf, 0xf4, 0x10, 0x6e, 0x13, 0xed, 0xf4, 0xa6, 0x96, 0xca, 0x22, 0x30,
-	0x31, 0x26, 0x30, 0x6d, 0xf4, 0x8d, 0x0d, 0xb7, 0x00, 0xfa, 0x54, 0x53, 0x53, 0x45, 0x25, 0xa4,
-	0x62, 0x55, 0x63, 0x38, 0xb8, 0xf4, 0xae, 0xa0, 0x6f, 0x71, 0xa6, 0x98, 0xe1, 0x70, 0x49, 0x4d,
-	0x1c, 0x3f, 0xb1, 0xa6, 0x02, 0xf0, 0x3e, 0xed, 0x76, 0x79, 0x78, 0x81, 0xa7, 0xe0, 0xee, 0xb3,
-	0x3c, 0x44, 0xba, 0xb4, 0xc9, 0x3e, 0xe6, 0xa1, 0x13, 0xff, 0x70, 0xe0, 0xd2, 0xa8, 0xce, 0xea,
-	0xaa, 0x62, 0x47, 0x6e, 0x5f, 0x0b, 0x0d, 0xaf, 0xd5, 0xab, 0x74, 0x46, 0x2a, 0x5f, 0x58, 0xff,
-	0xae, 0xf1, 0xff, 0xf0, 0xcc, 0xbf, 0xbd, 0x34, 0x06, 0xf0, 0x0e, 0xa0, 0x61, 0x2d, 0xab, 0x84,
-	0x12, 0xad, 0x24, 0x5e, 0xe4, 0x26, 0xf3, 0xd5, 0xd3, 0x7f, 0xac, 0xe5, 0xc3, 0xe0, 0xfa, 0xa8,
-	0xda, 0x8e, 0x8e, 0x36, 0x97, 0x6f, 0xe0, 0xde, 0x59, 0x1b, 0x87, 0xe0, 0x7e, 0x13, 0x9d, 0x15,
-	0xac, 0x43, 0x4d, 0xfb, 0x3b, 0x2b, 0x4f, 0xa2, 0xa7, 0x6d, 0x92, 0xd7, 0xce, 0x2b, 0xf4, 0x5f,
-	0x44, 0x0e, 0xbe, 0xf9, 0xf9, 0x2f, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff, 0xe2, 0xec, 0x0d, 0x65,
-	0x0b, 0x03, 0x00, 0x00,
+	// 579 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xc7, 0xbb, 0x8e, 0x93, 0xc6, 0xd3, 0x2a, 0x35, 0xdb, 0x0a, 0x59, 0x01, 0x89, 0xc8, 0x97,
+	0x86, 0x4b, 0x91, 0x5c, 0x0e, 0x08, 0xc4, 0x21, 0x8a, 0x0c, 0x04, 0xa5, 0x6d, 0xd8, 0x3a, 0x48,
+	0x9c, 0xaa, 0x4d, 0xbc, 0x6d, 0x2d, 0x6c, 0xaf, 0xf1, 0x6e, 0x90, 0xf2, 0x4c, 0x3c, 0x07, 0x17,
+	0x9e, 0x04, 0xde, 0x02, 0xed, 0xfa, 0x23, 0x1f, 0xb4, 0x02, 0x6e, 0x3b, 0x93, 0xf9, 0xcf, 0xec,
+	0xcf, 0xff, 0xd9, 0x40, 0x27, 0x61, 0x42, 0xd0, 0x1b, 0x26, 0x4e, 0xb2, 0x9c, 0x4b, 0x8e, 0xdb,
+	0x55, 0xec, 0xfe, 0x42, 0xb0, 0x3f, 0xb8, 0x61, 0xa9, 0x3c, 0x2b, 0x32, 0xf8, 0x19, 0x98, 0x72,
+	0x99, 0x31, 0x07, 0xf5, 0x50, 0xbf, 0xe3, 0x3d, 0x3a, 0xa9, 0x95, 0xeb, 0x55, 0x27, 0xc1, 0x32,
+	0x63, 0x44, 0x17, 0xe2, 0x0e, 0x18, 0x51, 0xe8, 0x18, 0x3d, 0xd4, 0xb7, 0x88, 0x11, 0x85, 0x18,
+	0x83, 0x49, 0x17, 0xf2, 0xd6, 0x69, 0xe8, 0x8c, 0x3e, 0x63, 0x0f, 0x5a, 0x39, 0x13, 0x8b, 0x58,
+	0x3a, 0x66, 0x0f, 0xf5, 0xf7, 0xbc, 0xee, 0x56, 0xdb, 0x49, 0xce, 0x67, 0x8c, 0xe8, 0x0a, 0x52,
+	0x56, 0xe2, 0x63, 0x30, 0xa3, 0xf4, 0x9a, 0x3b, 0x4d, 0xad, 0x38, 0xdc, 0x52, 0x8c, 0xd2, 0x6b,
+	0x4e, 0x74, 0x81, 0x7b, 0x0c, 0xa6, 0xba, 0x0e, 0xb6, 0xa0, 0xf9, 0xce, 0x1f, 0x8f, 0x2f, 0xec,
+	0x1d, 0x0c, 0xd0, 0x22, 0xfe, 0xe5, 0x74, 0x1c, 0xd8, 0x08, 0xb7, 0xc1, 0x1c, 0x9d, 0xbf, 0xb9,
+	0xb0, 0x0d, 0xf7, 0x1b, 0x02, 0xab, 0x16, 0xab, 0x7b, 0x73, 0xa1, 0x31, 0x2d, 0x62, 0x70, 0x81,
+	0xbb, 0xd0, 0xbe, 0xe5, 0x42, 0xa6, 0x34, 0x61, 0x25, 0x4d, 0x1d, 0x63, 0x17, 0xf6, 0xa9, 0x12,
+	0x7e, 0x64, 0xb9, 0x88, 0x78, 0x5a, 0xb2, 0x6d, 0xe4, 0xf0, 0x63, 0xb0, 0xa2, 0x8c, 0x86, 0x61,
+	0xce, 0x84, 0xd0, 0x98, 0x16, 0x59, 0x25, 0xf0, 0x11, 0x34, 0x63, 0x3a, 0x63, 0xb1, 0xc6, 0xb1,
+	0x48, 0x11, 0xa8, 0x99, 0x31, 0x9f, 0x53, 0xa9, 0x7a, 0xb6, 0x8a, 0x99, 0x55, 0xec, 0xfe, 0x44,
+	0x60, 0x6f, 0x7f, 0x1c, 0x7c, 0xba, 0xe1, 0xce, 0x93, 0xfb, 0x3f, 0xe3, 0xba, 0x43, 0x47, 0xd0,
+	0x9c, 0x27, 0xe1, 0xa8, 0x32, 0xa9, 0x08, 0x94, 0x4f, 0x8a, 0xaf, 0xf2, 0x49, 0x9d, 0xb1, 0x03,
+	0xbb, 0x99, 0xea, 0x31, 0x0a, 0x4b, 0x82, 0x2a, 0x54, 0x74, 0x32, 0x4a, 0x98, 0x90, 0x34, 0xc9,
+	0x34, 0x43, 0x83, 0xac, 0x12, 0xaa, 0x57, 0x48, 0x25, 0xd5, 0x0c, 0xfb, 0x44, 0x9f, 0xdd, 0xa7,
+	0xa5, 0x2d, 0xbb, 0xd0, 0x08, 0x86, 0x13, 0x7b, 0x47, 0x1b, 0x31, 0x3c, 0x9b, 0xd8, 0x08, 0x77,
+	0x00, 0x02, 0x32, 0x18, 0xfa, 0xe4, 0x62, 0x1a, 0xf8, 0xb6, 0xe1, 0xfe, 0x40, 0xf0, 0x60, 0xc8,
+	0x53, 0x99, 0xf3, 0x38, 0x66, 0x79, 0xb5, 0x89, 0xcf, 0x37, 0x58, 0x7b, 0x2b, 0xd6, 0x3f, 0x4a,
+	0xd7, 0x61, 0xdf, 0x43, 0x27, 0xa6, 0x92, 0xa5, 0xf3, 0x25, 0x61, 0x5f, 0x16, 0x4c, 0x48, 0x4d,
+	0xbd, 0xe7, 0xb9, 0x77, 0xe9, 0xc7, 0x1b, 0x95, 0x64, 0x4b, 0xe9, 0x9e, 0x96, 0x08, 0x0f, 0x01,
+	0x0f, 0xde, 0xfa, 0xe7, 0xc1, 0x95, 0x5a, 0xa4, 0x2b, 0xe2, 0x7f, 0x98, 0xfa, 0x97, 0x81, 0xbd,
+	0x83, 0x0f, 0xe1, 0x60, 0x3c, 0x08, 0xfc, 0xf3, 0xe1, 0xa7, 0x3a, 0x89, 0xdc, 0xef, 0x06, 0x38,
+	0xf7, 0x4d, 0xc0, 0xaf, 0x36, 0x98, 0x8e, 0xff, 0x7e, 0xa7, 0x75, 0xb4, 0x2e, 0xb4, 0x8b, 0xb7,
+	0x51, 0x5b, 0x59, 0xc7, 0x77, 0xba, 0x49, 0x00, 0x32, 0x9a, 0xd3, 0x84, 0x49, 0x96, 0xab, 0x95,
+	0x6c, 0xf4, 0xf7, 0x3c, 0xef, 0x1f, 0x46, 0x4e, 0x6a, 0x91, 0x9f, 0xca, 0x7c, 0x49, 0xd6, 0xba,
+	0x74, 0x5f, 0xc3, 0xc1, 0xd6, 0xcf, 0xd8, 0x86, 0xc6, 0x67, 0xb6, 0x2c, 0x5f, 0x92, 0x3a, 0xaa,
+	0x85, 0xfb, 0x4a, 0xe3, 0x45, 0xf5, 0x8e, 0x8a, 0xe0, 0xa5, 0xf1, 0x02, 0xfd, 0xc7, 0x52, 0xcc,
+	0x5a, 0xfa, 0xaf, 0xea, 0xf4, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6c, 0x9d, 0x04, 0xda, 0xbc,
+	0x04, 0x00, 0x00,
 }

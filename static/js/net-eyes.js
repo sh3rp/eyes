@@ -48,7 +48,7 @@ function postAdhocRequest() {
             for(var idx in data.results) {
                 $('#adhocGraphImage').append('<div id="adhocGraphImage_' + data.results[idx]+'"></div>');
             }
-            intervalID = setInterval(function(){ updateAdhocResultsTable(data); },1000);
+            intervalId = setInterval(function(){ updateAdhocResultsTable(data); },1000);
         }
     });
 }
@@ -68,7 +68,7 @@ function updateAdhocResultsTable(data) {
 
             MG.data_graphic({
                 title: 'Latency ('+result.AgentLocation+')',
-                description: 'Lol.',
+                description: 'Latency to ' + result.TargetHost + ' from ' + result.AgentLocation + '.',
                 data: data, // an array of objects, such as [{value:100,date:...},...]
                 width: 600,
                 height: 250,

@@ -3,16 +3,22 @@ package agent
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"net"
 	"strconv"
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/matishsiao/goInfo"
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 	"github.com/sh3rp/eyes/probe"
 	"github.com/sh3rp/eyes/util"
 )
+
+var VERSION_MAJOR = 0
+var VERSION_MINOR = 1
+var VERSION_PATCH = 0
 
 type ProbeAgent struct {
 	ID            string
@@ -20,7 +26,8 @@ type ProbeAgent struct {
 	Label         string
 	Location      string
 	Connection    net.Conn
-	ResultChannel chan *messages.ProbeResult
+	ResultChannel chan *messages.AgentProbeResult
+	OOBChannel    chan *messages.AgentMessage
 }
 
 func NewAgent(label, location string) *ProbeAgent {
@@ -29,7 +36,8 @@ func NewAgent(label, location string) *ProbeAgent {
 		IPAddress:     util.GetLocalIP(),
 		Label:         label,
 		Location:      location,
-		ResultChannel: make(chan *messages.ProbeResult),
+		ResultChannel: make(chan *messages.AgentProbeResult),
+		OOBChannel:    make(chan *messages.AgentMessage),
 	}
 }
 
@@ -46,6 +54,20 @@ func (a *ProbeAgent) connect(host string) net.Conn {
 	return c
 }
 
+func (a *ProbeAgent) getAgentInfo() *messages.AgentInfo {
+	platformInfo := goInfo.GetInfo()
+
+	info := &messages.AgentInfo{
+		Ipaddress:    a.IPAddress,
+		Label:        a.Label,
+		Location:     a.Location,
+		AgentVersion: fmt.Sprintf("%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH),
+		Hostname:     platformInfo.Hostname,
+		Os:           fmt.Sprintf("%s/%s %s (%d cpus)", platformInfo.Kernel, platformInfo.Platform, platformInfo.Core, platformInfo.CPUs),
+	}
+	return info
+}
+
 func (a *ProbeAgent) Start(controllerHost string) {
 	log.Info().Msgf("Starting agent: %s (%s) - %s", a.ID, a.Label, a.IPAddress)
 	for {
@@ -58,12 +80,11 @@ func (a *ProbeAgent) Start(controllerHost string) {
 
 		a.Connection = c
 
-		hello := &messages.ProbeACK{
-			Type:      messages.ProbeACK_HELLO,
-			Id:        a.ID,
-			Ipaddress: a.IPAddress,
-			Label:     a.Label,
-			Location:  a.Location,
+		hello := &messages.AgentMessage{
+			Type: messages.AgentMessage_HELLO,
+			Id:   a.ID,
+			Auth: "changeit",
+			Info: a.getAgentInfo(),
 		}
 
 		msg, err := proto.Marshal(hello)
@@ -86,7 +107,7 @@ func (a *ProbeAgent) Start(controllerHost string) {
 				break
 			}
 
-			cmd := &messages.ProbeCommand{}
+			cmd := &messages.ControllerMessage{}
 			err = proto.Unmarshal(data[:len], cmd)
 
 			if err != nil {
@@ -100,38 +121,43 @@ func (a *ProbeAgent) Start(controllerHost string) {
 
 func (a *ProbeAgent) WriteLoop() {
 	for {
-		result := <-a.ResultChannel
+		select {
+		case result := <-a.ResultChannel:
+			msg := &messages.AgentMessage{
+				Type:   messages.AgentMessage_RESULT,
+				Result: result,
+				Id:     a.ID,
+			}
 
-		msg := &messages.ProbeACK{
-			Type:   messages.ProbeACK_RESULT,
-			Result: result,
-			Id:     a.ID,
-		}
+			data, err := proto.Marshal(msg)
 
-		data, err := proto.Marshal(msg)
+			if err != nil {
+				log.Error().Msgf("ERROR (writeLoop:result): %v", err)
+			} else {
+				a.Connection.Write(data)
+			}
+		case oob := <-a.OOBChannel:
+			data, err := proto.Marshal(oob)
 
-		if err != nil {
-			log.Error().Msgf("ERROR (writeLoop): %v", err)
-		} else {
-			a.Connection.Write(data)
+			if err != nil {
+				log.Error().Msgf("ERROR (writeLoop:oob): %v", err)
+			} else {
+				a.Connection.Write(data)
+			}
 		}
 	}
 }
 
-func (a *ProbeAgent) Dispatch(cmd *messages.ProbeCommand) {
+func (a *ProbeAgent) Dispatch(cmd *messages.ControllerMessage) {
 	switch cmd.Type {
 	// used for testing purposes
-	case messages.ProbeCommand_NOOP:
-		a.ResultChannel <- &messages.ProbeResult{
-			ProbeId:   a.ID,
-			Data:      []byte{0, 1, 2, 3, 4, 5, 6, 7},
-			Type:      messages.ProbeResult_NOOP,
-			Timestamp: time.Now().UnixNano(),
-			Host:      util.GetLocalIP(),
-			CmdId:     cmd.Id,
+	case messages.ControllerMessage_AGENT_INFO_REQUEST:
+		a.OOBChannel <- &messages.AgentMessage{
+			Id:   a.ID,
+			Info: a.getAgentInfo(),
 		}
 	// run TCP probe
-	case messages.ProbeCommand_TCP:
+	case messages.ControllerMessage_LATENCY_REQUEST:
 		var port int
 		if _, ok := cmd.Parameters["port"]; ok {
 			port, _ = strconv.Atoi(cmd.Parameters["port"])

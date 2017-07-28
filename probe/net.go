@@ -25,11 +25,9 @@ func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
 			ipAddr := addr
 			elements := strings.Split(ipAddr, "/")
 			dstIP = elements[0]
-			log.Info().Msgf("GetLatency: using %s as dst addr", dstIP)
 			break
 		}
 	}
-	log.Info().Msgf("SRC: %s, DST: %s", srcIP, dstIP)
 
 	go func() {
 		receiveTime = WaitForResponse(srcIP, dstIP, dstPort)
@@ -113,7 +111,6 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 	for {
 		buf := make([]byte, 1024)
 		numRead, raddr, err := conn.ReadFrom(buf)
-		log.Info().Msgf("Read %d bytes", numRead)
 		if err != nil {
 			log.Error().Msgf("ReadFrom: %s\n", err)
 			return time.Now()

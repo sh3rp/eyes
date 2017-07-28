@@ -84,7 +84,6 @@ func (c *ProbeController) Start() {
 }
 
 func (c *ProbeController) SendProbe(agentId string, cmd *messages.ProbeCommand) string {
-	log.Info().Msgf("SendProbe: %s", cmd.Type)
 	if cmd.Id == "" {
 		cmd.Id = util.GenID()
 	}
@@ -136,5 +135,5 @@ func (c *ProbeController) handle(conn net.Conn) {
 
 	go c.Agents[ack.Id].ReadLoop(c.ResultChannel, c.DisconnectChannel)
 
-	log.Info().Msgf("Agent connected: %s (%v)", ack.Id, c.Agents[ack.Id])
+	log.Info().Msgf("Agent connected: %s (%v) - (%v)", ack.Id, c.Agents[ack.Id].IPAddress, c.Agents[ack.Id].Label)
 }

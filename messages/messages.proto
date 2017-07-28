@@ -2,25 +2,33 @@ syntax = "proto3";
 
 package messages;
 
-message ProbeACK {
+message AgentMessage {
     enum Type {
         HELLO = 0;
         RESULT = 1;
+        INFO = 2;
     }
     Type type = 1;
     string id = 2;
-    string ipaddress = 3;
-    string auth = 4;
-    string label = 5;
-    string location = 6;
-    ProbeResult result = 7;
+    string auth = 3;
+    AgentProbeResult result = 4;
+    AgentInfo info = 5;
 }
 
-message ProbeResult {
+message AgentInfo {
+    string os = 1;
+    string hostname = 2;
+    string agentVersion = 3;
+    string ipaddress = 4;
+    string label = 5;
+    string location = 6;
+}
+
+message AgentProbeResult {
     enum Type {
-        NOOP = 0;
-        TCP = 1;
-        ICMP = 2;
+        TCP = 0;
+        ICMP = 1;
+        TRACEROUTE = 2;
     }
     Type type = 1;
     string cmdId = 2;
@@ -30,14 +38,23 @@ message ProbeResult {
     bytes data = 6;
 }
 
-message ProbeCommand {
+message ControllerMessage {
     enum Type {
-        NOOP = 0;
-        TCP = 1;
-        ICMP = 2;
+        AGENT_INFO_REQUEST = 0;
+        LATENCY_REQUEST = 1;
     }
-    string id = 1;
-    string host = 2;
-    Type type = 3;
+    Type type = 1;
+    ControllerLatencyRequest latencyRequest = 2;
+}
+
+message ControllerLatencyRequest {
+    enum Type {
+        TCP = 0;
+        ICMP = 1;
+        TRACEROUTE = 2;
+    }
+    Type type = 1;
+    string resultId = 2;
+    string host = 3;
     map<string,string> parameters = 4;
 }

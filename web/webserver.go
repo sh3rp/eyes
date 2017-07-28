@@ -55,7 +55,6 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 
 	filePathSplit := strings.Split(filePath, ".")
 	fileType := filePathSplit[len(filePathSplit)-1]
-	log.Info().Msgf("Loading: %s", filePath)
 	switch fileType {
 	case "js":
 		w.Header().Set("Content-Type", "text/javascript")
@@ -73,7 +72,6 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *Webserver) handleResult(result *messages.ProbeResult) {
-	log.Info().Msgf("Caching result: %v", result)
 	ws.ResultCache[result.CmdId] = append(ws.ResultCache[result.CmdId], result)
 }
 
