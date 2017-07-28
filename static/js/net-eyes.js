@@ -42,7 +42,7 @@ function postAdhocRequest() {
     }).done(function(data) {
         $('#adhocCancel').click(function() {
             for(var id in data.results) {
-                postCancelRequest(id);
+                postCancelRequest(data.results[id]);
             }
         });
         if(data.code == 0) {
