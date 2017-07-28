@@ -41,7 +41,9 @@ function postAdhocRequest() {
         dataType: "json"
     }).done(function(data) {
         $('#adhocCancel').click(function() {
-            postCancelRequest(data.results[0]);
+            for(var id in data.results) {
+                postCancelRequest(id);
+            }
         });
         if(data.code == 0) {
             $('#adhocGraph').attr('hidden',false);
