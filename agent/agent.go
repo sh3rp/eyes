@@ -150,31 +150,30 @@ func (a *ProbeAgent) WriteLoop() {
 
 func (a *ProbeAgent) Dispatch(cmd *messages.ControllerMessage) {
 	switch cmd.Type {
-	// used for testing purposes
 	case messages.ControllerMessage_AGENT_INFO_REQUEST:
 		a.OOBChannel <- &messages.AgentMessage{
 			Id:   a.ID,
 			Info: a.getAgentInfo(),
 		}
-	// run TCP probe
 	case messages.ControllerMessage_LATENCY_REQUEST:
+		req := cmd.LatencyRequest
 		var port int
-		if _, ok := cmd.Parameters["port"]; ok {
-			port, _ = strconv.Atoi(cmd.Parameters["port"])
+		if _, ok := req.Parameters["port"]; ok {
+			port, _ = strconv.Atoi(req.Parameters["port"])
 		} else {
 			port = 80
 		}
-		latency := probe.GetLatency(a.IPAddress, cmd.Host, uint16(port))
+		latency := probe.GetLatency(a.IPAddress, req.Host, uint16(port))
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, latency)
 		if err == nil {
-			a.ResultChannel <- &messages.ProbeResult{
-				Host:      cmd.Host,
+			a.ResultChannel <- &messages.AgentProbeResult{
+				Host:      req.Host,
 				ProbeId:   a.ID,
 				Data:      buf.Bytes(),
 				Timestamp: time.Now().UnixNano(),
-				Type:      messages.ProbeResult_TCP,
-				CmdId:     cmd.Id,
+				Type:      messages.AgentProbeResult_TCP,
+				ResultId:  req.ResultId,
 			}
 		} else {
 			log.Error().Msgf("Error packing bytes: %v", err)

@@ -17,7 +17,7 @@ import (
 
 type Webserver struct {
 	Scheduler     *controller.AgentScheduler
-	ResultCache   map[string][]*messages.ProbeResult
+	ResultCache   map[string][]*messages.AgentProbeResult
 	MaxDataPoints map[string]int
 }
 
@@ -27,7 +27,7 @@ func NewWebserver() *Webserver {
 	scheduler := controller.NewAgentScheduler(ctrl)
 	return &Webserver{
 		Scheduler:     scheduler,
-		ResultCache:   make(map[string][]*messages.ProbeResult),
+		ResultCache:   make(map[string][]*messages.AgentProbeResult),
 		MaxDataPoints: make(map[string]int),
 	}
 }
@@ -38,7 +38,6 @@ func (ws *Webserver) Start() {
 	http.HandleFunc("/api/agents", ws.listAgents)
 	http.HandleFunc("/api/agent.control", ws.controlAgent)
 	http.HandleFunc("/api/agent.cancel/", ws.cancel)
-	http.HandleFunc("/api/agent.test/", ws.testAgent)
 	http.HandleFunc("/api/results", ws.listResults)
 	http.HandleFunc("/api/results/", ws.showResult)
 
@@ -71,8 +70,8 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (ws *Webserver) handleResult(result *messages.ProbeResult) {
-	ws.ResultCache[result.CmdId] = append(ws.ResultCache[result.CmdId], result)
+func (ws *Webserver) handleResult(result *messages.AgentProbeResult) {
+	ws.ResultCache[result.ResultId] = append(ws.ResultCache[result.ResultId], result)
 }
 
 func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
@@ -83,10 +82,10 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		var resultIds []string
 		for _, agent := range request.Agents {
 			id := util.GenID()
-			ws.Scheduler.ScheduleEveryXSeconds(1, agent, &messages.ProbeCommand{
-				Type: messages.ProbeCommand_TCP,
-				Host: request.Host,
-				Id:   id,
+			ws.Scheduler.ScheduleEveryXSeconds(1, agent, &messages.ControllerLatencyRequest{
+				Type:     messages.ControllerLatencyRequest_TCP,
+				Host:     request.Host,
+				ResultId: id,
 			})
 			resultIds = append(resultIds, id)
 			ws.MaxDataPoints[id] = request.MaxPoints
@@ -108,14 +107,6 @@ func (ws *Webserver) listAgents(w http.ResponseWriter, r *http.Request) {
 	agents := ws.Scheduler.Controller.Agents
 	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(agents)
-}
-
-func (ws *Webserver) testAgent(w http.ResponseWriter, r *http.Request) {
-	url := r.URL.Path
-	elements := strings.Split(url, "/")
-	id := elements[len(elements)-1]
-	log.Info().Msgf("Testing agent: %s", id)
-	ws.Scheduler.Controller.TestProbe(id)
 }
 
 func (ws *Webserver) listResults(w http.ResponseWriter, r *http.Request) {
@@ -148,14 +139,14 @@ func (ws *Webserver) showResult(w http.ResponseWriter, r *http.Request) {
 	if len(results) > 0 {
 		agent := ws.Scheduler.Controller.Agents[results[0].ProbeId]
 		response.AgentId = agent.Id
-		response.AgentLabel = agent.Label
-		response.AgentLocation = agent.Location
+		response.AgentLabel = agent.Info.Label
+		response.AgentLocation = agent.Info.Location
 		response.TargetHost = results[0].Host
-		response.ResultId = results[0].CmdId
+		response.ResultId = results[0].ResultId
 		response.Datapoints = make(map[int64]float64)
 
-		if len(results) >= ws.MaxDataPoints[results[0].CmdId] {
-			results = results[len(results)-ws.MaxDataPoints[results[0].CmdId]:]
+		if len(results) >= ws.MaxDataPoints[results[0].ResultId] {
+			results = results[len(results)-ws.MaxDataPoints[results[0].ResultId]:]
 		}
 
 		for _, result := range results {

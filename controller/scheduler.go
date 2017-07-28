@@ -10,24 +10,6 @@ type AgentScheduler struct {
 	Controller *ProbeController
 }
 
-type AgentJob struct {
-	AgentId    string
-	Command    *messages.ProbeCommand
-	Controller *ProbeController
-}
-
-func NewAgentJob(controller *ProbeController, agentId string, cmd *messages.ProbeCommand) *AgentJob {
-	return &AgentJob{
-		AgentId:    agentId,
-		Command:    cmd,
-		Controller: controller,
-	}
-}
-
-func (aj *AgentJob) Run() {
-	aj.Controller.SendProbe(aj.AgentId, aj.Command)
-}
-
 func NewAgentScheduler(controller *ProbeController) *AgentScheduler {
 	schedulers := make(map[string]*gocron.Scheduler)
 	schedulers["default"] = gocron.NewScheduler()
@@ -38,9 +20,8 @@ func NewAgentScheduler(controller *ProbeController) *AgentScheduler {
 	}
 }
 
-func (a *AgentScheduler) ScheduleEveryXSeconds(numSeconds uint64, agentId string, cmd *messages.ProbeCommand) {
-	job := NewAgentJob(a.Controller, agentId, cmd)
-	a.Schedulers["default"].Job(cmd.Id).Every(1).Second().Do(job.Run)
+func (a *AgentScheduler) ScheduleEveryXSeconds(numSeconds uint64, agentId string, cmd *messages.ControllerLatencyRequest) {
+	a.Schedulers["default"].Job(cmd.ResultId).Every(1).Second().Do(a.Controller.SendProbe, agentId, cmd)
 }
 
 func (a *AgentScheduler) Cancel(cmdId string) {

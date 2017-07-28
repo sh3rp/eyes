@@ -31,7 +31,7 @@ message AgentProbeResult {
         TRACEROUTE = 2;
     }
     Type type = 1;
-    string cmdId = 2;
+    string resultId = 2;
     string host = 3;
     string probeId = 4;
     int64 timestamp = 5;

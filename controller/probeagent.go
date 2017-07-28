@@ -10,13 +10,11 @@ import (
 
 type ProbeAgent struct {
 	Id         string
-	IPAddress  string
-	Label      string
-	Location   string
+	Info       *messages.AgentInfo
 	Connection net.Conn
 }
 
-func (pa *ProbeAgent) SendCommand(cmd *messages.ProbeCommand) error {
+func (pa *ProbeAgent) SendCommand(cmd *messages.ControllerMessage) error {
 	data, err := proto.Marshal(cmd)
 
 	if err != nil {
@@ -27,7 +25,7 @@ func (pa *ProbeAgent) SendCommand(cmd *messages.ProbeCommand) error {
 	return nil
 }
 
-func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.ProbeResult, disconnectChannel chan string) {
+func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.AgentProbeResult, disconnectChannel chan string) {
 	for {
 		data := make([]byte, 4096)
 		len, err := pa.Connection.Read(data)
@@ -38,16 +36,16 @@ func (pa *ProbeAgent) ReadLoop(resultChannel chan *messages.ProbeResult, disconn
 			return
 		}
 
-		ack := &messages.ProbeACK{}
-		err = proto.Unmarshal(data[:len], ack)
+		agentMessage := &messages.AgentMessage{}
+		err = proto.Unmarshal(data[:len], agentMessage)
 
 		if err != nil {
 			log.Error().Msgf("ERROR (unmarshal): %v", err)
 		}
 
-		switch ack.Type {
-		case messages.ProbeACK_RESULT:
-			resultChannel <- ack.Result
+		switch agentMessage.Type {
+		case messages.AgentMessage_RESULT:
+			resultChannel <- agentMessage.Result
 		}
 	}
 }
