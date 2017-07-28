@@ -9,7 +9,7 @@ function loadAdhocScreen() {
         for(var key in data) {
             $('#adhocAgentList').append($('<option>', {
                 value: key,
-                text: data[key].Info.label
+                text: data[key].Info.label + " (" + data[key].Info.location + ")"
             }));
         }
     })
