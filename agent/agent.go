@@ -149,6 +149,7 @@ func (a *ProbeAgent) WriteLoop() {
 }
 
 func (a *ProbeAgent) Dispatch(cmd *messages.ControllerMessage) {
+	log.Info().Msgf("Controller message: %s", cmd.Type)
 	switch cmd.Type {
 	case messages.ControllerMessage_AGENT_INFO_REQUEST:
 		a.OOBChannel <- &messages.AgentMessage{
