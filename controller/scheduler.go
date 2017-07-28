@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/chacken/gocron"
+	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/messages"
 )
 
@@ -25,5 +26,6 @@ func (a *AgentScheduler) ScheduleEveryXSeconds(numSeconds uint64, agentId string
 }
 
 func (a *AgentScheduler) Cancel(cmdId string) {
+	log.Info().Msgf("Cancelling %s", cmdId)
 	a.Schedulers["default"].Remove(cmdId)
 }
