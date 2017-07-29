@@ -6,11 +6,12 @@ type StandardResponse struct {
 }
 
 type AgentControlRequest struct {
-	Agents    []string       `json:"agents"`
-	Type      string         `json:"type"`
-	Host      string         `json:"host"`
-	MaxPoints int            `json:"maxPoints"`
-	Schedule  *AgentSchedule `json:"schedule"`
+	Agents    []string          `json:"agents"`
+	Type      string            `json:"type"`
+	Host      string            `json:"host"`
+	MaxPoints int               `json:"maxPoints"`
+	Options   map[string]string `json:"options"`
+	Schedule  *AgentSchedule    `json:"schedule"`
 }
 
 type AgentSchedule struct {

@@ -1,0 +1,18 @@
+<!-- 
+
+    Schedule
+
+    - hosts : Array
+    - schedule : struct
+      - time_value : Int
+      - time_unit : [Seconds,Minutes,Hours,Days,Weeks,Months]
+    - type : [TCP,ICMP,TRACEROUTE]
+    - max_points : Int [max = 10000]
+    - threshold_alerts : Array
+      - threshold_type : [GT,LT,EQ]
+      - threshold_value : Int
+      - threshold_trigger_count : Int
+      - alert_to : [EMAIL,SLACK]
+      - parameters : Map<String,String>
+
+-->

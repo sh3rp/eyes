@@ -11,10 +11,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
+func GetLatency(srcIP, dstIP string, dstPort uint16) (time.Duration, error) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	var receiveTime time.Time
+	var err error
 
 	addrs, err := net.LookupHost(dstIP)
 	if err != nil {
@@ -30,7 +31,7 @@ func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
 	}
 
 	go func() {
-		receiveTime = WaitForResponse(srcIP, dstIP, dstPort)
+		receiveTime, err = WaitForResponse(srcIP, dstIP, dstPort)
 		wg.Done()
 	}()
 
@@ -38,7 +39,7 @@ func GetLatency(srcIP, dstIP string, dstPort uint16) time.Duration {
 	sendTime := SendPing(srcIP, dstIP, 0, dstPort)
 
 	wg.Wait()
-	return receiveTime.Sub(sendTime)
+	return receiveTime.Sub(sendTime), nil
 }
 
 func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
@@ -92,17 +93,17 @@ func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
 	return sendTime
 }
 
-func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time {
+func WaitForResponse(localAddress, remoteAddress string, port uint16) (time.Time, error) {
 	netaddr, err := net.ResolveIPAddr("ip4", localAddress)
 	if err != nil {
 		log.Error().Msgf("ERROR: net.ResolveIPAddr: %s. %s\n", localAddress, netaddr)
-		return time.Now()
+		return time.Now(), err
 	}
 
 	conn, err := net.ListenIP("ip4:tcp", netaddr)
 	if err != nil {
 		log.Error().Msgf("ListenIP: %s\n", err)
-		return time.Now()
+		return time.Now(), err
 	}
 
 	conn.SetReadDeadline(time.Now().Add(time.Duration(3 * time.Second)))
@@ -113,7 +114,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 		numRead, raddr, err := conn.ReadFrom(buf)
 		if err != nil {
 			log.Error().Msgf("ReadFrom: %s\n", err)
-			return time.Now()
+			return time.Now(), err
 		}
 		if raddr.String() != remoteAddress {
 			continue
@@ -124,7 +125,7 @@ func WaitForResponse(localAddress, remoteAddress string, port uint16) time.Time 
 			break
 		}
 	}
-	return receiveTime
+	return receiveTime, nil
 }
 
 // Grab first interface found and the first IP on it

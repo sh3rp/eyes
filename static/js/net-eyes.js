@@ -1,18 +1,51 @@
 
+function loadAgents() {
+    $.ajax({
+        url: '/api/agents'
+    }).done(function(data){
+        $('#agentList').find('option').remove().end();
+        for(var idx in data) {
+            $('#agentList').append($('<option>', {
+                value: idx,
+                text: data[idx].Info.label + " (" + data[idx].Info.location + ")"
+            }));
+        }
+    });
+}
+
 function loadAdhocScreen() {
-    $('#adhocForm').attr('hidden',false);
-    $('#adhocGraph').attr('hidden',false);
+    $('#viewPort').load('/html/adhocProbe.html',function(){
+        $('#adhocType').change(function(){
+        var value = $(this).val();
+        switch(value) {
+            case "TCP":
+               $('#adhocTCPTypeOptions').attr('hidden',false);
+               break;
+            default:
+                $('#adhocTCPTypeOptions').attr('hidden',true);
+                break;
+        }
+        });
+    });
+    loadAgents();
+}
+
+function loadAgentScreen() {
+    $('#viewPort').load('/html/agents.html');
     $.ajax({
         url:"/api/agents"
     }).done(function(data) {
-        $('#adhocAgentList').find('option').remove().end();
+        $('#agents table').append('<tr><th>Name</th><th>Location</th><th>OS</th><th>Version</th></tr>');
+        // add rows to table here
         for(var key in data) {
-            $('#adhocAgentList').append($('<option>', {
-                value: key,
-                text: data[key].Info.label + " (" + data[key].Info.location + ")"
-            }));
+            var d = data[key];
+            $('#agents table').append('<tr><td>'+d.Info.label+'</td>'+ 
+                '<td>'+d.Info.location+'</td>'+
+                '<td>'+d.Info.os+'</td>'+
+                '<td>'+d.Info.agentVersion+'</td>'+
+                '</tr>');
         }
-    })
+    });
 }
 
 function postCancelRequest(id) {
@@ -28,6 +61,18 @@ function postCancelRequest(id) {
 
 var intervalId;
 
+function getOptions() {
+    var options = {};
+
+    if($('#adhocTCPPort').length) {
+        options['port'] = $('#adhocTCPPort').val();
+    }
+
+    console.log('options = ' + options);
+
+    return options;
+}
+
 function postAdhocRequest() {
     $.ajax({
         type: "POST",
@@ -35,8 +80,9 @@ function postAdhocRequest() {
         data: JSON.stringify({
             Host: $('#adhocHost').val(),
             Type: $('#adhocType').val(),
-            Agents: $('#adhocAgentList').val(),
-            MaxPoints: parseInt($('#adhocMaxPoints').val())
+            Agents: $('#agentList').val(),
+            MaxPoints: parseInt($('#adhocMaxPoints').val()),
+            Options: getOptions()
         }),
         dataType: "json"
     }).done(function(data) {
@@ -95,7 +141,9 @@ function addActiveSwitcher() {
         switch(e.target.id) {
             case "adhocProbe":
                 loadAdhocScreen();
+                break;
             case "agents": // load agents
+                loadAgentScreen();
                 break;
             case "schedules": // load schedules
                 alert("Loading schedules.");
@@ -107,9 +155,8 @@ function addActiveSwitcher() {
     });
 }
 
+var loadAgentsIntervalId = null;
+
 $(document).ready(function() {
     addActiveSwitcher();
-    $('#adhocSubmit').click(function(e) {
-        postAdhocRequest();
-    });
 });

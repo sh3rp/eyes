@@ -36,6 +36,8 @@ message AgentProbeResult {
     string probeId = 4;
     int64 timestamp = 5;
     bytes data = 6;
+    bool error = 7;
+    string errorMessage = 8;
 }
 
 message ControllerMessage {

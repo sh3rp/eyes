@@ -163,17 +163,24 @@ func (a *ProbeAgent) Dispatch(cmd *messages.ControllerMessage) {
 		} else {
 			port = 80
 		}
-		latency := probe.GetLatency(a.IPAddress, req.Host, uint16(port))
+		latency, latencyErr := probe.GetLatency(a.IPAddress, req.Host, uint16(port))
 		buf := new(bytes.Buffer)
 		err := binary.Write(buf, binary.LittleEndian, latency)
 		if err == nil {
+			var success = latencyErr == nil
+			errorMessage := "ok"
+			if !success {
+				errorMessage = latencyErr.Error()
+			}
 			a.ResultChannel <- &messages.AgentProbeResult{
-				Host:      req.Host,
-				ProbeId:   a.ID,
-				Data:      buf.Bytes(),
-				Timestamp: time.Now().UnixNano(),
-				Type:      messages.AgentProbeResult_TCP,
-				ResultId:  req.ResultId,
+				Host:         req.Host,
+				ProbeId:      a.ID,
+				Data:         buf.Bytes(),
+				Timestamp:    time.Now().UnixNano(),
+				Type:         messages.AgentProbeResult_TCP,
+				ResultId:     req.ResultId,
+				ErrorMessage: errorMessage,
+				Error:        success,
 			}
 		} else {
 			log.Error().Msgf("Error packing bytes: %v", err)

@@ -42,6 +42,7 @@ func (ws *Webserver) Start() {
 	http.HandleFunc("/api/results/", ws.showResult)
 
 	http.HandleFunc("/", ws.serveFile)
+	http.HandleFunc("/html/", ws.serveFile)
 	http.HandleFunc("/js/", ws.serveFile)
 	http.HandleFunc("/css/", ws.serveFile)
 	http.ListenAndServe(":8080", nil)
@@ -51,7 +52,7 @@ func (ws *Webserver) serveFile(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	filePath := url[1:]
 	data, err := ioutil.ReadFile("static/" + filePath)
-
+	log.Info().Msgf("Serving: %s", "static/"+filePath)
 	filePathSplit := strings.Split(filePath, ".")
 	fileType := filePathSplit[len(filePathSplit)-1]
 	switch fileType {
@@ -83,9 +84,10 @@ func (ws *Webserver) controlAgent(w http.ResponseWriter, r *http.Request) {
 		for _, agent := range request.Agents {
 			id := util.GenID()
 			ws.Scheduler.ScheduleEveryXSeconds(1, agent, &messages.ControllerLatencyRequest{
-				Type:     messages.ControllerLatencyRequest_TCP,
-				Host:     request.Host,
-				ResultId: id,
+				Type:       messages.ControllerLatencyRequest_TCP,
+				Host:       request.Host,
+				ResultId:   id,
+				Parameters: request.Options,
 			})
 			resultIds = append(resultIds, id)
 			ws.MaxDataPoints[id] = request.MaxPoints
