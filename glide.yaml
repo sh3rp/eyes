@@ -1,0 +1,12 @@
+package: github.com/sh3rp/eyes
+import:
+- package: github.com/chacken/gocron
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/matishsiao/goInfo
+- package: github.com/oklog/ulid
+- package: github.com/rs/zerolog
+  subpackages:
+  - log
+- package: github.com/rs/xid
