@@ -49,7 +49,7 @@ func main() {
 		}
 
 		for id, agent := range agents.Agents {
-			fmt.Printf("\t[%s]\t%s\t%s\t%s\t%s\n", id, agent.Label, agent.Ipaddress, agent.Os, agent.Location)
+			fmt.Printf("  [%s] %-25s\n\t IP       : %s\n\t OS       : %s\n\t Location : %s\n\n", id, agent.Label, agent.Ipaddress, agent.Os, agent.Location)
 		}
 	}
 

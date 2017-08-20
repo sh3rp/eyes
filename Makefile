@@ -8,13 +8,16 @@ test:
 	go test util/*
 
 agent:
-	go build -o eyes-agent cmd/agent/eyes-agent.go
+	GOOS=darwin GOARCH=amd64 go build -o eyes-agent.darwin cmd/agent/eyes-agent.go
+	GOOS=linux GOARCH=amd64 go build -o eyes-agent.linux cmd/agent/eyes-agent.go
 
 controller:
-	go build -o eyes-controller cmd/controller/eyes-controller.go
+	GOOS=darwin GOARCH=amd64 go build -o eyes-controller.darwin cmd/controller/eyes-controller.go
+	GOOS=linux GOARCH=amd64 go build -o eyes-controller.linux cmd/controller/eyes-controller.go
 
 client:
-	go build -o eyes cmd/client/eyes.go
+	GOOS=darwin GOARCH=amd64 go build -o eyes.darwin cmd/client/eyes.go
+	GOOS=linux GOARCH=amd64 go build -o eyes.linux cmd/client/eyes.go
 
 protobuf:
 	protoc --proto_path=messages messages/messages.proto --go_out=plugins=grpc:messages
