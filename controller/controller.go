@@ -11,19 +11,23 @@ import (
 )
 
 type ProbeController struct {
-	Agents            map[string]*ProbeAgent
-	ResultChannel     chan *messages.AgentProbeResult
-	ResultListeners   []func(*messages.AgentProbeResult)
-	DisconnectChannel chan string
-	agentLock         *sync.Mutex
+	Agents             map[string]*ProbeAgent
+	ResultChannel      chan *messages.AgentProbeResult
+	ResultListeners    []func(*messages.AgentProbeResult)
+	DisconnectChannel  chan string
+	agentLock          *sync.Mutex
+	probeCallbacks     map[string]func(*messages.AgentProbeResult)
+	probeCallbacksLock *sync.Mutex
 }
 
 func NewProbeController() *ProbeController {
 	return &ProbeController{
-		Agents:            make(map[string]*ProbeAgent),
-		ResultChannel:     make(chan *messages.AgentProbeResult, 10),
-		DisconnectChannel: make(chan string, 5),
-		agentLock:         new(sync.Mutex),
+		Agents:             make(map[string]*ProbeAgent),
+		ResultChannel:      make(chan *messages.AgentProbeResult, 10),
+		DisconnectChannel:  make(chan string, 5),
+		agentLock:          new(sync.Mutex),
+		probeCallbacks:     make(map[string]func(*messages.AgentProbeResult)),
+		probeCallbacksLock: new(sync.Mutex),
 	}
 }
 
@@ -38,6 +42,12 @@ func (c *ProbeController) ResultReadLoop() {
 		for _, listener := range c.ResultListeners {
 			listener(result)
 		}
+		c.probeCallbacksLock.Lock()
+		if _, ok := c.probeCallbacks[result.ResultId]; ok {
+			c.probeCallbacks[result.ResultId](result)
+		}
+		delete(c.probeCallbacks, result.ResultId)
+		c.probeCallbacksLock.Unlock()
 	}
 }
 
@@ -77,7 +87,7 @@ func (c *ProbeController) Start() {
 	}
 }
 
-func (c *ProbeController) SendProbe(agentId string, latencyRequest *messages.ControllerLatencyRequest) string {
+func (c *ProbeController) SendProbe(agentId string, latencyRequest *messages.LatencyRequest) string {
 	if latencyRequest.ResultId == "" {
 		latencyRequest.ResultId = util.GenID()
 	}
@@ -92,6 +102,15 @@ func (c *ProbeController) SendProbe(agentId string, latencyRequest *messages.Con
 		log.Error().Msgf("SendProbe failed, no such agentId %s", agentId)
 	}
 	return latencyRequest.ResultId
+}
+
+func (c *ProbeController) SendProbeCallback(agentId string, latencyRequest *messages.LatencyRequest, f func(*messages.AgentProbeResult)) {
+	id := util.GenID()
+	c.probeCallbacksLock.Lock()
+	c.probeCallbacks[id] = f
+	c.probeCallbacksLock.Unlock()
+	latencyRequest.ResultId = id
+	c.SendProbe(agentId, latencyRequest)
 }
 
 func (c *ProbeController) handle(conn net.Conn) {

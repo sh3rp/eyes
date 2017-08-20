@@ -2,6 +2,33 @@ syntax = "proto3";
 
 package messages;
 
+service Controller {
+    rpc GetAgents(AgentRequest) returns (AgentResponse);
+    rpc SendProbe(ProbeRequest) returns (ProbeResponse);
+    rpc ScheduleProbe(ScheduleProbeRequest) returns (ScheduleProbeResponse);
+}
+
+message AgentRequest {
+    string id = 1;
+}
+
+message AgentResponse {
+    map<string,AgentInfo> agents = 1;
+}
+
+message ProbeRequest {
+    string agentId = 1;
+    bool repeat = 2;
+    LatencyRequest latencyRequest = 3;
+}
+
+message ProbeResponse {
+    AgentProbeResult result = 1;
+}
+
+message ScheduleProbeRequest{}
+message ScheduleProbeResponse{}
+
 message AgentMessage {
     enum Type {
         HELLO = 0;
@@ -46,10 +73,10 @@ message ControllerMessage {
         LATENCY_REQUEST = 1;
     }
     Type type = 1;
-    ControllerLatencyRequest latencyRequest = 2;
+    LatencyRequest latencyRequest = 2;
 }
 
-message ControllerLatencyRequest {
+message LatencyRequest {
     enum Type {
         TCP = 0;
         ICMP = 1;

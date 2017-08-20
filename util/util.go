@@ -1,8 +1,11 @@
 package util
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"math/rand"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 
@@ -35,4 +38,14 @@ func GetLocalIP() string {
 		}
 	}
 	return ip
+}
+
+func GenerateHash(username string, req *http.Request) string {
+	tokenSeed := username + ";" + req.RemoteAddr
+
+	hasher := sha256.New()
+	hasher.Write([]byte(tokenSeed))
+	token := hasher.Sum(nil)
+
+	return base64.URLEncoding.EncodeToString(token)
 }

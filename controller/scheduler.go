@@ -20,7 +20,7 @@ func NewAgentScheduler(controller *ProbeController) *AgentScheduler {
 	}
 }
 
-func (a *AgentScheduler) ScheduleEveryXSeconds(numSeconds uint64, agentId string, cmd *messages.ControllerLatencyRequest) {
+func (a *AgentScheduler) ScheduleEveryXSeconds(numSeconds uint64, agentId string, cmd *messages.LatencyRequest) {
 	a.Schedulers["default"].Job(cmd.ResultId).Every(1).Second().Do(a.Controller.SendProbe, agentId, cmd)
 }
 

@@ -1,4 +1,4 @@
-all: test agent controller
+all: protobuf agent controller client
 
 agent:
 	go build -o eyes-agent cmd/agent/eyes-agent.go
@@ -6,11 +6,17 @@ agent:
 test:
 	go test agent/*
 	go test controller/*
-	go test web/*
+	go test web/auth/*
 	go test probe/*
 	go test util/*
 
 controller:
 	go build -o eyes-controller cmd/controller/eyes-controller.go
 
-.PHONY: agent controller
+client:
+	go build -o eyes cmd/client/eyes.go
+
+protobuf:
+	protoc --proto_path=messages messages/messages.proto --go_out=plugins=grpc:messages
+
+.PHONY: agent controller protobuf
