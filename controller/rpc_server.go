@@ -35,6 +35,10 @@ func (s *GRPCServer) Start() {
 	gServer.Serve(listener)
 }
 
+func (s *GRPCServer) CreateResultQueue(ctx context.Context, in *messages.CreateResultQueueRequest) (*messages.CreateResultQueueResponse, error) {
+	return nil, nil
+}
+
 func (s *GRPCServer) GetAgents(ctx context.Context, req *messages.AgentRequest) (*messages.AgentResponse, error) {
 	if s.Controller.Agents == nil || len(s.Controller.Agents) == 0 {
 		return nil, errors.New("No agents connected to controller")

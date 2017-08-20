@@ -5,11 +5,12 @@ package messages;
 service Controller {
     rpc GetAgents(AgentRequest) returns (AgentResponse);
     rpc SendProbe(ProbeRequest) returns (ProbeResponse);
+    rpc CreateResultQueue(CreateResultQueueRequest) returns (CreateResultQueueResponse);
     rpc ScheduleProbe(ScheduleProbeRequest) returns (ScheduleProbeResponse);
 }
 
 message AgentRequest {
-    string id = 1;
+    string agentId = 1;
 }
 
 message AgentResponse {
@@ -18,16 +19,40 @@ message AgentResponse {
 
 message ProbeRequest {
     string agentId = 1;
-    bool repeat = 2;
-    LatencyRequest latencyRequest = 3;
+    LatencyRequest latencyRequest = 2;
 }
 
 message ProbeResponse {
     AgentProbeResult result = 1;
 }
 
-message ScheduleProbeRequest{}
-message ScheduleProbeResponse{}
+message CreateResultQueueRequest {
+    string clientId = 1;
+}
+
+message CreateResultQueueResponse {
+    string clientId = 1;
+    ResultQueueConfig config = 2;
+}
+
+message ScheduleProbeRequest {
+    string clientId = 1;
+    LatencyRequest latencyRequest = 2;
+    ResultQueueConfig resultConfig = 3;
+    ProbeSchedule schedule = 4;
+}
+
+message ScheduleProbeResponse {
+    string scheduleId = 1;
+}
+
+// standard messages
+
+message ResultQueueConfig {
+    string queueConfigId = 1;
+    string queueURL = 2;
+    string queueChannel = 3;
+}
 
 message AgentMessage {
     enum Type {
@@ -86,4 +111,14 @@ message LatencyRequest {
     string resultId = 2;
     string host = 3;
     map<string,string> parameters = 4;
+}
+
+message ProbeSchedule {
+    string id = 1;
+    string second = 2;
+    string minute = 3;
+    string hour = 4;
+    string day = 5;
+    string month = 6;
+    string year = 7;
 }
