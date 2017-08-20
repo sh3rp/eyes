@@ -1,5 +1,5 @@
 hash: 08dc04de2dfdab69bcf0cd7adbcafb544735565b947c34c3d9bf55ff32459196
-updated: 2017-07-29T19:14:47.108379132-04:00
+updated: 2017-08-20T08:29:45.023348741-04:00
 imports:
 - name: github.com/chacken/gocron
   version: ca9539162954183ead71f28c75a0c1c2f9ce2c5e
@@ -7,8 +7,19 @@ imports:
   version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
   subpackages:
   - proto
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
 - name: github.com/matishsiao/goInfo
   version: ed1e14d7a97bcc483d8f1e0c962114988768c37e
+- name: github.com/nats-io/go-nats
+  version: acf11e4666ad8ab4680680b45d38cf1509a40fed
+  subpackages:
+  - encoders/builtin
+  - util
+- name: github.com/nats-io/nuid
+  version: 3cf34f9fca4e88afa9da8eabd75e3326c9941b44
 - name: github.com/oklog/ulid
   version: 66bb6560562feca7045b23db1ae85b01260f87c5
 - name: github.com/rs/xid
@@ -17,4 +28,42 @@ imports:
   version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
   subpackages:
   - log
+- name: golang.org/x/net
+  version: 1c05540f6879653db88113bc4a2b70aec4bd491f
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/text
+  version: e56139fd9c5bc7244c76116c68e500765bb6db6b
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: ee236bd376b077c7a89f260c026c4735b195e459
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: 25b4a426b40c26c07c80af674b03db90b5bd4a60
+  subpackages:
+  - codes
+  - connectivity
+  - credentials
+  - grpclb/messages_only/grpc_lb_v1
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - stats
+  - status
+  - tap
+  - transport
 testImports: []

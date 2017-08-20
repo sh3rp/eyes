@@ -1,4 +1,4 @@
-all: protobuf agent controller client
+all: protobuf glide agent controller client
 
 agent:
 	go build -o eyes-agent cmd/agent/eyes-agent.go
@@ -19,4 +19,8 @@ client:
 protobuf:
 	protoc --proto_path=messages messages/messages.proto --go_out=plugins=grpc:messages
 
-.PHONY: agent controller protobuf
+glide:
+	glide update
+	glide install
+
+.PHONY: agent controller protobuf glide
