@@ -6,3 +6,5 @@ install:
   - tar -xzvf v3.4.0.tar.gz
   - pushd protobuf-3.4.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && popd
   - go get -u github.com/golang/protobuf/protoc-gen-go
+  - sudo add-apt-repository ppa:masterminds/glide && sudo apt-get update
+  - sudo apt-get install glide
