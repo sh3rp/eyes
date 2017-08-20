@@ -35,6 +35,15 @@ func (s *GRPCServer) Start() {
 	gServer.Serve(listener)
 }
 
+func (s *GRPCServer) GetControllerInfo(ctx context.Context, in *messages.Empty) (*messages.ControllerInfoResponse, error) {
+	maj, min, pat := s.Controller.GetVersion()
+	versionStr := fmt.Sprintf("v%d.%d.%d", maj, min, pat)
+	return &messages.ControllerInfoResponse{
+		Version:         versionStr,
+		ConnectedAgents: int32(len(s.Controller.Agents)),
+	}, nil
+}
+
 func (s *GRPCServer) CreateResultQueue(ctx context.Context, in *messages.CreateResultQueueRequest) (*messages.CreateResultQueueResponse, error) {
 	return nil, nil
 }

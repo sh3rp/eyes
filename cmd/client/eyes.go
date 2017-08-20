@@ -3,29 +3,54 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/sh3rp/eyes/config"
 	"github.com/sh3rp/eyes/messages"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	c, err := grpc.Dial("localhost:9999", grpc.WithInsecure())
+	cfg := &config.ClientConfig{}
+	cfg.Read("./eyes-client.json")
 
-	if err != nil {
-		panic(err)
+	var connections []*grpc.ClientConn
+
+	controllers := make(map[string]messages.ControllerClient)
+
+	for _, host := range cfg.ControllerHosts {
+		c, err := grpc.Dial(host.Host+":"+strconv.Itoa(host.Port), grpc.WithInsecure())
+		if err != nil {
+			fmt.Printf("%v\n", err)
+		}
+		connections = append(connections, c)
+		controllers[host.Label] = messages.NewControllerClient(c)
 	}
 
-	defer c.Close()
+	defer func() {
+		for _, c := range connections {
+			c.Close()
+		}
+	}()
 
-	client := messages.NewControllerClient(c)
+	for k, v := range controllers {
+		controllerInfo, err := v.GetControllerInfo(context.Background(), &messages.Empty{})
 
-	agents, err := client.GetAgents(context.Background(), &messages.AgentRequest{})
+		if err != nil {
+			panic(err)
+		}
 
-	if err != nil {
-		panic(err)
+		fmt.Printf("%s - controller %s\n\n", k, controllerInfo.Version)
+
+		agents, err := v.GetAgents(context.Background(), &messages.AgentRequest{})
+
+		if err != nil {
+			panic(err)
+		}
+
+		for id, agent := range agents.Agents {
+			fmt.Printf("\t[%s]\t%s\t%s\t%s\t%s\n", id, agent.Label, agent.Ipaddress, agent.Os, agent.Location)
+		}
 	}
 
-	for id, agent := range agents.Agents {
-		fmt.Println(id, "=>", agent.Ipaddress)
-	}
 }

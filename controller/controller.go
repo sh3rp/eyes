@@ -10,6 +10,10 @@ import (
 	"github.com/sh3rp/eyes/util"
 )
 
+var V_MAJOR = 0
+var V_MINOR = 1
+var V_PATCH = 0
+
 type ProbeController struct {
 	Agents             map[string]*ProbeAgent
 	ResultChannel      chan *messages.AgentProbeResult
@@ -29,6 +33,10 @@ func NewProbeController() *ProbeController {
 		probeCallbacks:     make(map[string]func(*messages.AgentProbeResult)),
 		probeCallbacksLock: new(sync.Mutex),
 	}
+}
+
+func (c *ProbeController) GetVersion() (int, int, int) {
+	return V_MAJOR, V_MINOR, V_PATCH
 }
 
 func (c *ProbeController) AddResultListener(f func(*messages.AgentProbeResult)) {

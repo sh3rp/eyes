@@ -1,0 +1,9 @@
+{
+    "hosts" : [
+        {
+            "label": "default",
+            "host": "localhost",
+            "port": 9999
+        }
+    ]
+}

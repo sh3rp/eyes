@@ -3,10 +3,18 @@ syntax = "proto3";
 package messages;
 
 service Controller {
+    rpc GetControllerInfo(Empty) returns (ControllerInfoResponse);
     rpc GetAgents(AgentRequest) returns (AgentResponse);
     rpc SendProbe(ProbeRequest) returns (ProbeResponse);
     rpc CreateResultQueue(CreateResultQueueRequest) returns (CreateResultQueueResponse);
     rpc ScheduleProbe(ScheduleProbeRequest) returns (ScheduleProbeResponse);
+}
+
+message Empty {}
+
+message ControllerInfoResponse {
+    string version = 1;
+    int32 connectedAgents = 2;
 }
 
 message AgentRequest {
