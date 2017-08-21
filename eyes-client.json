@@ -1,8 +1,8 @@
 {
     "hosts" : [
         {
-            "label": "ec1.ewr",
-            "host": "ec1.ewr.net-eyes.io",
+            "label": "localhost",
+            "host": "localhost",
             "port": 9999
         }
     ]
