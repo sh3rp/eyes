@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package msg;
+
+message Packet {
+    enum Sender {
+        AGENT = 0;
+        CONTROLLER = 1;
+    }
+    enum Type {
+        HELLO = 0;
+        PROBE_ACTION = 1;
+        PROBE_CONFIG = 2;
+        PROBE_RESULT = 3;
+    }
+    Sender sender = 1;
+    Type type = 2;
+    int32 error_code = 3;
+    string error_message = 4;
+    oneof packet {
+        Hello hello = 5;
+        ProbeAction action = 6;
+        ProbeConfig config = 7;
+        ProbeResult results = 8;
+    }
+}
+
+message Hello {
+    string username = 1;
+    string password = 2;
+}
+
+message ProbeAction {
+    enum Action {
+        ACTIVATE = 0;
+        DEACTIVATE = 1;
+        RUN_ONCE = 2;
+        DELETE = 3;
+    }
+    Action action = 1;
+    string id = 2;
+}
+
+message ProbeConfig {
+    string id = 1;
+    string action = 2;
+    map<string,string> parameters = 3;
+    Schedule schedule = 4;
+}
+
+message Schedule {
+    int64 everyMilliseconds = 1;
+}
+
+message ProbeResult {
+    string id = 1;
+    string configId = 2;
+    bytes data = 3;
+    int64 timestamp = 4;
+}
