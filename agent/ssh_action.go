@@ -1,17 +1,13 @@
-package action
+package agent
 
 import (
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/oklog/ulid"
-	"github.com/sh3rp/eyes/agent"
 )
 
 type SSHExec struct{}
 
-func (ssh *SSHExec) Execute(id ulid.ULID, config agent.ActionConfig) (agent.Result, error) {
+func (ssh SSHExec) Execute(config ActionConfig) (Result, error) {
 	host := config.Parameters["host"]
 	port := 22
 
@@ -19,7 +15,7 @@ func (ssh *SSHExec) Execute(id ulid.ULID, config agent.ActionConfig) (agent.Resu
 		n, err := strconv.Atoi(config.Parameters["port"])
 
 		if err != nil {
-			return agent.Result{}, err
+			return Result{}, err
 		}
 		port = n
 	}
@@ -31,15 +27,15 @@ func (ssh *SSHExec) Execute(id ulid.ULID, config agent.ActionConfig) (agent.Resu
 	lines, err := client.Run(config.Parameters["command"])
 
 	if err != nil {
-		return agent.Result{}, err
+		return Result{}, err
 	}
 
 	str := strings.Join(lines, "\n")
 
-	return agent.Result{
-		ID:        id,
-		ConfigID:  config.Id,
+	return Result{
+		Id:        NewId(),
+		ConfigId:  config.Id,
 		Data:      []byte(str),
-		Timestamp: time.Now().Unix() / 1000000,
+		Timestamp: Now(),
 	}, nil
 }

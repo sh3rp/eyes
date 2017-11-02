@@ -1,20 +1,18 @@
-package action
+package agent
 
 import (
 	"bytes"
 	"encoding/binary"
 	"strconv"
 
-	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
-	"github.com/sh3rp/eyes/agent"
 	"github.com/sh3rp/eyes/probe"
 )
 
 type TCPPing struct{}
 
-func (ping *TCPPing) Execute(id ulid.ULID, config agent.ActionConfig) (agent.Result, error) {
-	var result agent.Result
+func (ping TCPPing) Execute(config ActionConfig) (Result, error) {
+	var result Result
 	var port int
 	if _, ok := config.Parameters["port"]; ok {
 		port, _ = strconv.Atoi(config.Parameters["port"])
@@ -23,29 +21,29 @@ func (ping *TCPPing) Execute(id ulid.ULID, config agent.ActionConfig) (agent.Res
 	}
 	latency, latencyErr := probe.GetLatency(config.Parameters["srcIp"], config.Parameters["dstIp"], uint16(port))
 	if latencyErr != nil {
-		return agent.Result{
-			ID:        id,
+		return Result{
+			Id:        NewId(),
 			Data:      []byte{},
-			DataCode:  agent.DATA_ERROR,
-			Timestamp: agent.Now(),
+			DataCode:  DATA_ERROR,
+			Timestamp: Now(),
 		}, nil
 	}
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, latency)
 	if err == nil {
-		result = agent.Result{
-			ID:        id,
+		result = Result{
+			Id:        NewId(),
 			Data:      buf.Bytes(),
-			DataCode:  agent.DATA_OK,
-			Timestamp: agent.Now(),
+			DataCode:  DATA_OK,
+			Timestamp: Now(),
 		}
 	} else {
 		log.Error().Msgf("Error packing bytes: %v", err)
-		result = agent.Result{
-			ID:        id,
+		result = Result{
+			Id:        NewId(),
 			Data:      []byte{},
-			DataCode:  agent.DATA_ERROR,
-			Timestamp: agent.Now(),
+			DataCode:  DATA_ERROR,
+			Timestamp: Now(),
 		}
 	}
 	return result, nil

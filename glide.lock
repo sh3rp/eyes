@@ -1,10 +1,10 @@
 hash: 08dc04de2dfdab69bcf0cd7adbcafb544735565b947c34c3d9bf55ff32459196
-updated: 2017-08-20T08:29:45.023348741-04:00
+updated: 2017-10-31T20:48:03.434805896-04:00
 imports:
 - name: github.com/chacken/gocron
   version: ca9539162954183ead71f28c75a0c1c2f9ce2c5e
 - name: github.com/golang/protobuf
-  version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
+  version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
   subpackages:
   - proto
   - ptypes
@@ -12,24 +12,32 @@ imports:
   - ptypes/duration
   - ptypes/timestamp
 - name: github.com/matishsiao/goInfo
-  version: ed1e14d7a97bcc483d8f1e0c962114988768c37e
+  version: 617e6440957ee5591c8912e8b7e2f03a86298722
 - name: github.com/nats-io/go-nats
-  version: acf11e4666ad8ab4680680b45d38cf1509a40fed
+  version: 6f06d34c19fc8607adf14668b5bb2c9465d78348
   subpackages:
   - encoders/builtin
   - util
 - name: github.com/nats-io/nuid
-  version: 3cf34f9fca4e88afa9da8eabd75e3326c9941b44
+  version: 33c603157d6fd1b0ac2599bcc4a286b36479a06d
 - name: github.com/oklog/ulid
   version: 66bb6560562feca7045b23db1ae85b01260f87c5
 - name: github.com/rs/xid
   version: 02dd45c33376f85d1064355dc790dcc4850596b1
 - name: github.com/rs/zerolog
-  version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
+  version: 9d194eb6f50e8718a6d6f8f1e1f0bf3ddf4065f1
   subpackages:
+  - internal/json
   - log
+- name: golang.org/x/crypto
+  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
+  subpackages:
+  - curve25519
+  - ed25519
+  - ed25519/internal/edwards25519
+  - ssh
 - name: golang.org/x/net
-  version: 1c05540f6879653db88113bc4a2b70aec4bd491f
+  version: c73622c77280266305273cb545f54516ced95b93
   subpackages:
   - context
   - http2
@@ -39,31 +47,39 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/text
-  version: e56139fd9c5bc7244c76116c68e500765bb6db6b
+  version: 3cfc6c0d6bf80d724d98c26c4822f4a35d37598e
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: ee236bd376b077c7a89f260c026c4735b195e459
+  version: 03951f3b52582ecab79e5a37a86b5a20c5f64df7
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 25b4a426b40c26c07c80af674b03db90b5bd4a60
+  version: fb4b2b29e49d653547f46f004953aed4dc3c3249
   subpackages:
+  - balancer
+  - balancer/roundrobin
   - codes
   - connectivity
   - credentials
-  - grpclb/messages_only/grpc_lb_v1
+  - encoding
+  - grpclb/grpc_lb_v1/messages
   - grpclog
   - internal
   - keepalive
   - metadata
   - naming
   - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
   - stats
   - status
   - tap
   - transport
+- name: gopkg.in/robfig/cron.v2
+  version: be2e0b0deed5a68ffee390b4583a13aff8321535
 testImports: []
