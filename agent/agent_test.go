@@ -38,8 +38,8 @@ func TestSSHSchedule(t *testing.T) {
 	})
 	configParameters := make(map[string]string)
 	configParameters["host"] = "localhost"
-	configParameters["username"] = "shep"
-	configParameters["password"] = "D1rtyn1gg0r"
+	configParameters["username"] = ""
+	configParameters["password"] = ""
 	configParameters["command"] = "uptime"
 	config := ActionConfig{
 		Id:         "ssh",
