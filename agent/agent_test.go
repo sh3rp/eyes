@@ -11,7 +11,7 @@ import (
 func TestDummySchedule(t *testing.T) {
 	results := []Result{}
 	agent := NewMemAgent()
-	agent.ResultFuncs = append(agent.ResultFuncs, func(r Result) {
+	agent.AddResultHandler("logger", func(r Result) {
 		results = append(results, r)
 	})
 	configParameters := make(map[string]string)
@@ -33,7 +33,7 @@ func TestDummySchedule(t *testing.T) {
 
 func TestSSHSchedule(t *testing.T) {
 	agent := NewMemAgent()
-	agent.ResultFuncs = append(agent.ResultFuncs, func(r Result) {
+	agent.AddResultHandler("logger", func(r Result) {
 		fmt.Printf("[R]: %s\n", string(r.Data))
 	})
 	configParameters := make(map[string]string)

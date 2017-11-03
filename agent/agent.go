@@ -13,11 +13,13 @@ type Agent interface {
 	DeleteActionConfig(string) error
 	ScheduleAction(string, string) error
 	UnscheduleAction(string) error
+	AddResultHandler(string, func(Result)) error
+	RemoveResultHandler(string) error
 }
 
 type MemAgent struct {
 	Configs       map[string]ActionConfig
-	ResultFuncs   []func(Result)
+	resultFuncs   map[string]func(Result)
 	schedules     map[string]cron.EntryID
 	cronScheduler *cron.Cron
 	results       chan Result
@@ -31,6 +33,7 @@ func NewMemAgent() *MemAgent {
 		schedules:     make(map[string]cron.EntryID),
 		cronScheduler: cronScheduler,
 		results:       make(chan Result),
+		resultFuncs:   make(map[string]func(Result)),
 	}
 	go agent.sendResults()
 	return agent
@@ -73,9 +76,19 @@ func (a *MemAgent) UnscheduleAction(id string) error {
 	return nil
 }
 
+func (a *MemAgent) AddResultHandler(id string, f func(Result)) error {
+	a.resultFuncs[id] = f
+	return nil
+}
+
+func (a *MemAgent) RemoveResultHandler(id string) error {
+	delete(a.resultFuncs, id)
+	return nil
+}
+
 func (a *MemAgent) sendResults() {
 	for result := range a.results {
-		for _, f := range a.ResultFuncs {
+		for _, f := range a.resultFuncs {
 			f(result)
 		}
 	}
