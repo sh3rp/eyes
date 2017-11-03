@@ -12,8 +12,8 @@ func TestSimplePacket(t *testing.T) {
 	c1, c2 := net.Pipe()
 	cHandler := &mockHandler{}
 	aHandler := &mockHandler{}
-	controller := NewConnection(c1, cHandler, 0)
-	agent := NewConnection(c2, aHandler, 0)
+	controller := NewConnection(c1, cHandler)
+	agent := NewConnection(c2, aHandler)
 
 	err := agent.Send(msg.Packet{Sender: msg.Packet_AGENT})
 	assert.Nil(t, err)
@@ -26,11 +26,30 @@ func TestSimplePacket(t *testing.T) {
 func TestMalformedPacket(t *testing.T) {
 	c1, c2 := net.Pipe()
 	mockHandler := &mockHandler{}
-	NewConnection(c1, mockHandler, 0)
+	NewConnection(c1, mockHandler)
 
 	c2.Write([]byte("bogus"))
 
 	assert.Equal(t, 1, len(mockHandler.errors))
+}
+
+func TestConnectionDrop(t *testing.T) {
+	c1, c2 := net.Pipe()
+	mockHandler := &mockHandler{}
+	NewConnection(c1, mockHandler)
+
+	c2.Write([]byte("bogus"))
+	c1.Close()
+	assert.Nil(t, mockHandler.packets)
+	assert.Equal(t, 1, len(mockHandler.errors))
+}
+
+func TestNilConnection(t *testing.T) {
+	mockHandler := &mockHandler{}
+	c := NewConnection(nil, mockHandler)
+
+	err := c.Send(msg.Packet{})
+	assert.NotNil(t, err)
 }
 
 type mockHandler struct {

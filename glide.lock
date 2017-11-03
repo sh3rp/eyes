@@ -1,8 +1,12 @@
 hash: 08dc04de2dfdab69bcf0cd7adbcafb544735565b947c34c3d9bf55ff32459196
-updated: 2017-11-03T01:53:10.098887996-04:00
+updated: 2017-11-03T17:15:58.275727477-04:00
 imports:
 - name: github.com/chacken/gocron
   version: ca9539162954183ead71f28c75a0c1c2f9ce2c5e
+- name: github.com/gogo/protobuf
+  version: 117892bf1866fbaa2318c03e50e40564c8845457
+  subpackages:
+  - proto
 - name: github.com/golang/protobuf
   version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
   subpackages:

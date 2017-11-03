@@ -1,9 +1,11 @@
 package net
 
 import (
+	"errors"
 	"net"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/msg"
 )
 
@@ -24,15 +26,11 @@ type connection struct {
 	handler    PacketHandler
 }
 
-func NewConnection(conn net.Conn, handler PacketHandler, readBufSize int) Connection {
-	bufSize := DEFAULT_BUFFER_SIZE
-	if readBufSize > 0 {
-		bufSize = readBufSize
-	}
+func NewConnection(conn net.Conn, handler PacketHandler) Connection {
 	c := &connection{
 		conn:       conn,
 		handler:    handler,
-		bufferSize: bufSize,
+		bufferSize: DEFAULT_BUFFER_SIZE,
 	}
 	go c.read()
 
@@ -44,6 +42,9 @@ func (c *connection) Send(pkt msg.Packet) error {
 }
 
 func (c *connection) write(pkt msg.Packet) error {
+	if c.conn == nil {
+		return errors.New("Connection not set, cannot write packet")
+	}
 	data, err := proto.Marshal(&pkt)
 	if err != nil {
 		return err
@@ -56,7 +57,12 @@ func (c *connection) write(pkt msg.Packet) error {
 }
 
 func (c *connection) read() {
-	if c.conn == nil {
+	if c.conn == nil || c.handler == nil {
+		if c.handler != nil {
+			c.handler.HandleError(nil, errors.New("No connection set, cannot read"))
+		} else {
+			log.Error().Msgf("Catastrophic error: no handler set for inbound data")
+		}
 		return
 	}
 	for {

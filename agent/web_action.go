@@ -7,7 +7,7 @@ import (
 
 type WebAction struct{}
 
-func (wa *WebAction) Execute(config ActionConfig) (Result, error) {
+func (wa WebAction) Execute(config ActionConfig) (Result, error) {
 	res, err := http.Get(config.Parameters["url"])
 
 	if err != nil {

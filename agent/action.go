@@ -28,6 +28,7 @@ const (
 	A_TCPPING
 	A_SSH
 	A_SNMP
+	A_HTTP
 )
 
 var ACTIONS = map[int]Action{
@@ -35,6 +36,7 @@ var ACTIONS = map[int]Action{
 	A_TCPPING: TCPPing{},
 	A_SSH:     SSHExec{},
 	A_SNMP:    SNMPPoll{},
+	A_HTTP:    WebAction{},
 }
 
 type Result struct {

@@ -9,9 +9,8 @@ message Packet {
     }
     enum Type {
         HELLO = 0;
-        PROBE_ACTION = 1;
-        PROBE_CONFIG = 2;
-        PROBE_RESULT = 3;
+        PROBE = 1;
+        PROBE_RESULT = 2;
     }
     Sender sender = 1;
     Type type = 2;
@@ -19,9 +18,8 @@ message Packet {
     string error_message = 4;
     oneof packet {
         Hello hello = 5;
-        ProbeAction action = 6;
-        ProbeConfig config = 7;
-        ProbeResult results = 8;
+        Probe probe = 6;
+        Result result = 7;
     }
 }
 
@@ -30,31 +28,29 @@ message Hello {
     string password = 2;
 }
 
-message ProbeAction {
+message Probe {
     enum Action {
-        ACTIVATE = 0;
-        DEACTIVATE = 1;
+        DEACTIVATE = 0;
+        ACTIVATE = 1;
         RUN_ONCE = 2;
         DELETE = 3;
     }
     Action action = 1;
-    string id = 2;
+    ActionConfig config = 2;
+    string schedule = 3;
 }
 
-message ProbeConfig {
+message ActionConfig {
     string id = 1;
-    string action = 2;
+    int32 action = 2;
     map<string,string> parameters = 3;
-    Schedule schedule = 4;
 }
 
-message Schedule {
-    int64 everyMilliseconds = 1;
-}
-
-message ProbeResult {
+message Result {
     string id = 1;
     string configId = 2;
-    bytes data = 3;
-    int64 timestamp = 4;
+    int32 dataCode = 3;
+    bytes data = 4;
+    map<string,string> tags = 5;
+    int64 timestamp = 6;
 }

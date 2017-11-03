@@ -21,6 +21,7 @@ client:
 
 protobuf:
 	protoc --proto_path=messages messages/messages.proto --go_out=plugins=grpc:messages
+	protoc --proto_path=msg msg/agent.proto --go_out=msg
 
 glide:
 	glide update
