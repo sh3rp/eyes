@@ -13,6 +13,7 @@ var DEFAULT_BUFFER_SIZE = 8128
 
 type Connection interface {
 	Send(msg.Packet) error
+	SetHandler(PacketHandler) error
 }
 
 type PacketHandler interface {
@@ -26,15 +27,19 @@ type connection struct {
 	handler    PacketHandler
 }
 
-func NewConnection(conn net.Conn, handler PacketHandler) Connection {
+func NewConnection(conn net.Conn) Connection {
 	c := &connection{
 		conn:       conn,
-		handler:    handler,
 		bufferSize: DEFAULT_BUFFER_SIZE,
 	}
 	go c.read()
 
 	return c
+}
+
+func (c *connection) SetHandler(handler PacketHandler) error {
+	c.handler = handler
+	return nil
 }
 
 func (c *connection) Send(pkt msg.Packet) error {
