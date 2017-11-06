@@ -20,7 +20,6 @@ client:
 	GOOS=linux GOARCH=amd64 go build -o eyes.linux cmd/client/eyes.go
 
 protobuf:
-	protoc --proto_path=messages messages/messages.proto --go_out=plugins=grpc:messages
 	protoc --proto_path=msg msg/agent.proto --go_out=msg
 
 glide:
