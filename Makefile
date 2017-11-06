@@ -1,11 +1,7 @@
-all: protobuf glide agent controller client
+all: protobuf glide test
 
 test:
-	go test agent/*
-	go test controller/*
-	go test web/auth/*
-	go test probe/*
-	go test util/*
+	go test -cover ./...
 
 agent:
 	GOOS=darwin GOARCH=amd64 go build -o eyes-agent.darwin cmd/agent/eyes-agent.go
