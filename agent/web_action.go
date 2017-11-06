@@ -3,6 +3,8 @@ package agent
 import (
 	"io/ioutil"
 	"net/http"
+
+	"github.com/sh3rp/eyes/util"
 )
 
 type WebAction struct{}
@@ -20,5 +22,5 @@ func (wa WebAction) Execute(config ActionConfig) (Result, error) {
 		return Result{}, err
 	}
 
-	return Result{Tags: make(map[string]string), DataCode: DATA_OK, ConfigId: config.Id, Id: NewId(), Data: data, Timestamp: Now()}, nil
+	return Result{Tags: make(map[string]string), DataCode: DATA_OK, ConfigId: config.Id, Id: util.NewId(), Data: data, Timestamp: util.Now()}, nil
 }

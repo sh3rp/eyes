@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sh3rp/eyes/agent"
 	"github.com/sh3rp/eyes/msg"
+	"github.com/sh3rp/eyes/util"
 )
 
 type AgentServer struct {
@@ -14,7 +15,7 @@ type AgentServer struct {
 }
 
 func NewAgentServer(c net.Conn, agent agent.Agent) AgentServer {
-	connection := NewConnection(c)
+	connection := NewConnection(c, msg.NodeInfo{})
 	// TODO: fix this cirular dependency
 	agentServer := AgentServer{
 		connection: connection,
@@ -62,8 +63,8 @@ func (s AgentServer) handleResult(r agent.Result) {
 
 func ResultToPB(r agent.Result) *msg.Result {
 	return &msg.Result{
-		Id:        r.Id,
-		ConfigId:  r.ConfigId,
+		Id:        string(r.Id),
+		ConfigId:  string(r.ConfigId),
 		DataCode:  int32(r.DataCode),
 		Data:      r.Data,
 		Timestamp: r.Timestamp,
@@ -73,7 +74,7 @@ func ResultToPB(r agent.Result) *msg.Result {
 
 func PBtoAgentConfig(cfg *msg.ActionConfig) agent.ActionConfig {
 	return agent.ActionConfig{
-		Id:         cfg.Id,
+		Id:         util.ID(cfg.Id),
 		Action:     int(cfg.Action),
 		Parameters: cfg.Parameters,
 	}

@@ -5,22 +5,23 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog/log"
+	"github.com/sh3rp/eyes/util"
 	cron "gopkg.in/robfig/cron.v2"
 )
 
 type Agent interface {
 	StoreActionConfig(ActionConfig) error
-	DeleteActionConfig(string) error
-	ScheduleAction(string, string) error
-	UnscheduleAction(string) error
+	DeleteActionConfig(util.ID) error
+	ScheduleAction(util.ID, string) error
+	UnscheduleAction(util.ID) error
 	AddResultHandler(string, func(Result)) error
 	RemoveResultHandler(string) error
 }
 
 type MemAgent struct {
-	Configs       map[string]ActionConfig
+	Configs       map[util.ID]ActionConfig
 	resultFuncs   map[string]func(Result)
-	schedules     map[string]cron.EntryID
+	schedules     map[util.ID]cron.EntryID
 	cronScheduler *cron.Cron
 	results       chan Result
 }
@@ -29,8 +30,8 @@ func NewMemAgent() *MemAgent {
 	cronScheduler := cron.New()
 	cronScheduler.Start()
 	agent := &MemAgent{
-		Configs:       make(map[string]ActionConfig),
-		schedules:     make(map[string]cron.EntryID),
+		Configs:       make(map[util.ID]ActionConfig),
+		schedules:     make(map[util.ID]cron.EntryID),
 		cronScheduler: cronScheduler,
 		results:       make(chan Result),
 		resultFuncs:   make(map[string]func(Result)),
@@ -44,12 +45,12 @@ func (a *MemAgent) StoreActionConfig(c ActionConfig) error {
 	return nil
 }
 
-func (a *MemAgent) DeleteActionConfig(id string) error {
+func (a *MemAgent) DeleteActionConfig(id util.ID) error {
 	delete(a.Configs, id)
 	return nil
 }
 
-func (a *MemAgent) ScheduleAction(id, cronString string) error {
+func (a *MemAgent) ScheduleAction(id util.ID, cronString string) error {
 	config := a.Configs[id]
 	action := ACTIONS[config.Action]
 	scheduleId, err := a.cronScheduler.AddFunc(cronString, func() {
@@ -68,7 +69,7 @@ func (a *MemAgent) ScheduleAction(id, cronString string) error {
 	return err
 }
 
-func (a *MemAgent) UnscheduleAction(id string) error {
+func (a *MemAgent) UnscheduleAction(id util.ID) error {
 	if _, ok := a.schedules[id]; !ok {
 		return errors.New(fmt.Sprintf("No schedule with ID %s", id))
 	}

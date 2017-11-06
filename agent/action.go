@@ -1,18 +1,13 @@
 package agent
 
-import (
-	"crypto/rand"
-	"time"
-
-	"github.com/oklog/ulid"
-)
+import "github.com/sh3rp/eyes/util"
 
 type Action interface {
 	Execute(ActionConfig) (Result, error)
 }
 
 type ActionConfig struct {
-	Id         string
+	Id         util.ID
 	Action     int
 	Parameters map[string]string
 }
@@ -40,32 +35,23 @@ var ACTIONS = map[int]Action{
 }
 
 type Result struct {
-	Id        string
-	ConfigId  string
+	Id        util.ID
+	ConfigId  util.ID
 	DataCode  int
 	Data      []byte
 	Tags      map[string]string
 	Timestamp int64
 }
 
-func Now() int64 {
-	return time.Now().UnixNano() / 1000000
-}
-
-func NewId() string {
-	id := ulid.MustNew(ulid.Timestamp(time.Now()), rand.Reader)
-	return id.String()
-}
-
 type DummyAction struct{}
 
 func (d DummyAction) Execute(c ActionConfig) (Result, error) {
 	return Result{
-		Id:        NewId(),
+		Id:        util.NewId(),
 		ConfigId:  c.Id,
 		DataCode:  DATA_OK,
 		Data:      []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
 		Tags:      c.Parameters,
-		Timestamp: Now(),
+		Timestamp: util.Now(),
 	}, nil
 }

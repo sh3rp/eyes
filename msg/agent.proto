@@ -11,6 +11,7 @@ message Packet {
         HELLO = 0;
         PROBE = 1;
         PROBE_RESULT = 2;
+        KEEPALIVE = 3;
     }
     Sender sender = 1;
     Type type = 2;
@@ -20,12 +21,24 @@ message Packet {
         Hello hello = 5;
         Probe probe = 6;
         Result result = 7;
+        NodeInfo info = 8;
     }
 }
 
 message Hello {
     string username = 1;
     string password = 2;
+}
+
+message NodeInfo {
+    string id = 1;
+    string os = 2;
+    string ip = 3;
+    string hostname = 4;
+    int32 majorVersion = 5;
+    int32 minorVersion = 6;
+    int32 patchVersion = 7;
+    int64 startTime = 8;
 }
 
 message Probe {

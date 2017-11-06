@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sh3rp/eyes/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,18 +18,18 @@ func TestDummySchedule(t *testing.T) {
 	configParameters := make(map[string]string)
 	configParameters["a"] = "avalue"
 	config := ActionConfig{
-		Id:         "pants",
+		Id:         util.ID("pants"),
 		Action:     A_TEST,
 		Parameters: configParameters,
 	}
 	agent.StoreActionConfig(config)
 	agent.ScheduleAction(config.Id, "@every 1s")
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 
-	assert.Equal(t, 5, len(results))
+	assert.Equal(t, 1, len(results))
 	assert.Equal(t, "avalue", results[0].Tags["a"])
-	assert.Equal(t, "pants", results[0].ConfigId)
+	assert.Equal(t, util.ID("pants"), results[0].ConfigId)
 }
 
 func TestSSHSchedule(t *testing.T) {
@@ -42,12 +43,12 @@ func TestSSHSchedule(t *testing.T) {
 	configParameters["password"] = ""
 	configParameters["command"] = "uptime"
 	config := ActionConfig{
-		Id:         "ssh",
+		Id:         util.ID("ssh"),
 		Action:     A_SSH,
 		Parameters: configParameters,
 	}
 	agent.StoreActionConfig(config)
 	agent.ScheduleAction(config.Id, "@every 1s")
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 }

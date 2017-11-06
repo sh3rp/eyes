@@ -3,6 +3,8 @@ package agent
 import (
 	"strconv"
 	"strings"
+
+	"github.com/sh3rp/eyes/util"
 )
 
 type SSHExec struct{}
@@ -33,9 +35,9 @@ func (ssh SSHExec) Execute(config ActionConfig) (Result, error) {
 	str := strings.Join(lines, "\n")
 
 	return Result{
-		Id:        NewId(),
+		Id:        util.NewId(),
 		ConfigId:  config.Id,
 		Data:      []byte(str),
-		Timestamp: Now(),
+		Timestamp: util.Now(),
 	}, nil
 }
