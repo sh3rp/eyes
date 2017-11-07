@@ -9,9 +9,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/matishsiao/goInfo"
 	"github.com/oklog/ulid"
 	"github.com/rs/zerolog/log"
+	"github.com/sh3rp/eyes/msg"
 )
+
+var VERSION_MAJOR = 0
+var VERSION_MINOR = 1
+var VERSION_PATCH = 0
 
 func GetLocalIP() string {
 	var ip string
@@ -54,4 +60,21 @@ func NewId() ID {
 	entropy := rand.New(rand.NewSource(t.UnixNano()))
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	return ID(id.String())
+}
+
+func GenNodeInfo(id string) msg.NodeInfo {
+	info := goInfo.GetInfo()
+
+	return msg.NodeInfo{
+		Id:           id,
+		Os:           info.GoOS,
+		Kernel:       info.Core,
+		Platform:     info.Platform,
+		Ip:           "",
+		Hostname:     info.Hostname,
+		CoreCount:    int32(info.CPUs),
+		MajorVersion: int32(VERSION_MAJOR),
+		MinorVersion: int32(VERSION_MINOR),
+		PatchVersion: int32(VERSION_PATCH),
+	}
 }

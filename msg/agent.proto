@@ -7,21 +7,14 @@ message Packet {
         AGENT = 0;
         CONTROLLER = 1;
     }
-    enum Type {
-        HELLO = 0;
-        PROBE = 1;
-        PROBE_RESULT = 2;
-        KEEPALIVE = 3;
-    }
     Sender sender = 1;
-    Type type = 2;
-    int32 error_code = 3;
-    string error_message = 4;
+    int32 error_code = 2;
+    string error_message = 3;
     oneof packet {
-        Hello hello = 5;
-        Probe probe = 6;
-        Result result = 7;
-        NodeInfo info = 8;
+        Hello hello = 4;
+        Probe probe = 5;
+        Result result = 6;
+        KeepAlive keepalive = 7;
     }
 }
 
@@ -30,15 +23,23 @@ message Hello {
     string password = 2;
 }
 
+message KeepAlive {
+    NodeInfo info = 1;
+    int64 timestamp = 2;
+}
+
 message NodeInfo {
     string id = 1;
     string os = 2;
-    string ip = 3;
-    string hostname = 4;
-    int32 majorVersion = 5;
-    int32 minorVersion = 6;
-    int32 patchVersion = 7;
-    int64 startTime = 8;
+    string kernel = 3;
+    string platform = 4;
+    string ip = 5;
+    int32 coreCount = 6;
+    string hostname = 7;
+    int32 majorVersion = 8;
+    int32 minorVersion = 9;
+    int32 patchVersion = 10;
+    int64 startTime = 11;
 }
 
 message Probe {

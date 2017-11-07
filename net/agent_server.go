@@ -15,7 +15,7 @@ type AgentServer struct {
 }
 
 func NewAgentServer(c net.Conn, agent agent.Agent) AgentServer {
-	connection := NewConnection(c, msg.NodeInfo{})
+	connection := NewConnection(c, msg.NodeInfo{}, 10000)
 	// TODO: fix this cirular dependency
 	agentServer := AgentServer{
 		connection: connection,
@@ -27,7 +27,8 @@ func NewAgentServer(c net.Conn, agent agent.Agent) AgentServer {
 }
 
 func (s AgentServer) HandlePacket(pkt msg.Packet) {
-	if pkt.Type == msg.Packet_PROBE {
+	switch pkt.Packet.(type) {
+	case *msg.Packet_Probe:
 		probe := pkt.GetProbe()
 		switch probe.Action {
 		case msg.Probe_ACTIVATE:
@@ -44,6 +45,7 @@ func (s AgentServer) HandlePacket(pkt msg.Packet) {
 			s.agent.DeleteActionConfig(c.Id)
 		}
 	}
+
 }
 
 func (s AgentServer) HandleError(data []byte, err error) {
@@ -54,7 +56,6 @@ func (s AgentServer) handleResult(r agent.Result) {
 	pb := ResultToPB(r)
 	s.connection.Send(msg.Packet{
 		Sender:       msg.Packet_AGENT,
-		Type:         msg.Packet_PROBE_RESULT,
 		Packet:       &msg.Packet_Result{pb},
 		ErrorCode:    0,
 		ErrorMessage: "ok",

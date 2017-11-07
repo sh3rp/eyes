@@ -4,28 +4,31 @@ import (
 	"net"
 
 	"github.com/sh3rp/eyes/controller"
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/msg"
 )
 
-type AgentController struct {
+type ControllerServer struct {
 	connection Connection
 	controller controller.Controller
+	db         db.EyesDB
 }
 
-func NewAgentController(c net.Conn, ctrl controller.Controller) AgentController {
-	conn := NewConnection(c, msg.NodeInfo{})
+func NewControllerServer(c net.Conn, ctrl controller.Controller, db db.EyesDB, info msg.NodeInfo) ControllerServer {
+	conn := NewConnection(c, info, 10000)
 
-	controller := AgentController{
+	controller := ControllerServer{
 		connection: conn,
 		controller: ctrl,
+		db:         db,
 	}
 	conn.SetHandler(controller)
 
 	return controller
 }
 
-func (c AgentController) HandlePacket(pkt msg.Packet) {
+func (c ControllerServer) HandlePacket(pkt msg.Packet) {
 }
 
-func (c AgentController) HandleError(data []byte, err error) {
+func (c ControllerServer) HandleError(data []byte, err error) {
 }
