@@ -62,11 +62,11 @@ func NewId() ID {
 	return ID(id.String())
 }
 
-func GenNodeInfo(id string) msg.NodeInfo {
+func GenNodeInfo(id ID) msg.NodeInfo {
 	info := goInfo.GetInfo()
 
 	return msg.NodeInfo{
-		Id:           id,
+		Id:           string(id),
 		Os:           info.GoOS,
 		Kernel:       info.Core,
 		Platform:     info.Platform,

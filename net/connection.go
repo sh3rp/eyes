@@ -25,6 +25,14 @@ type Connection interface {
 type PacketHandler interface {
 	HandlePacket(msg.Packet)
 	HandleError([]byte, error)
+
+	HandleHello(msg.Hello)
+	HandleKeepalive(msg.KeepAlive)
+	HandleScheduleActionConfig(msg.ScheduleActionConfig)
+	HandleResult(msg.Result)
+	HandleUnScheduleActionConfig(msg.UnscheduleActionConfig)
+	HandleRunActionConfig(msg.RunActionConfig)
+	HandleAllActionConfigs(msg.AllActionConfigs)
 }
 
 type connection struct {
@@ -111,16 +119,32 @@ func (c *connection) read() {
 
 					c.lastKeepalive = util.Now()
 
-					log.Debug().Msgf("Keepalive: id=%s v%d.%d.%d",
+					log.Debug().Msgf("Keepalive: id=%s v%d.%d.%d (%s %s/%s (%s))",
 						c.remoteInfo.Id,
 						c.remoteInfo.MajorVersion,
 						c.remoteInfo.MinorVersion,
-						c.remoteInfo.PatchVersion)
+						c.remoteInfo.PatchVersion,
+						c.remoteInfo.Hostname,
+						c.remoteInfo.Os,
+						c.remoteInfo.Kernel,
+						c.remoteInfo.Platform)
+					c.handler.HandleKeepalive(*pkt.GetKeepalive())
 				case *msg.Packet_Hello:
-				case *msg.Packet_Probe:
+					c.handler.HandleHello(*pkt.GetHello())
+				case *msg.Packet_Schedule:
+					c.handler.HandleScheduleActionConfig(*pkt.GetSchedule())
+				case *msg.Packet_Unschedule:
+					c.handler.HandleUnScheduleActionConfig(*pkt.GetUnschedule())
+				case *msg.Packet_Run:
+					c.handler.HandleRunActionConfig(*pkt.GetRun())
 				case *msg.Packet_Result:
+					c.handler.HandleResult(*pkt.GetResult())
+				case *msg.Packet_AllConfigs:
+					c.handler.HandleAllActionConfigs(*pkt.GetAllConfigs())
 				case nil:
+					log.Error().Msg("ERROR: empty packet (nil)")
 				default:
+					log.Error().Msgf("ERROR: unknown packet: %v", pkt)
 				}
 
 				c.handler.HandlePacket(pkt)
@@ -141,8 +165,8 @@ func (c *connection) keepalive() {
 						Timestamp: util.Now(),
 					},
 				},
-				ErrorCode:    0,
-				ErrorMessage: "ok",
+				Code: 0,
+				Msg:  "ok",
 			}
 			c.Send(p)
 		}

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var INFO = util.GenNodeInfo("dummy")
+var INFO = util.GenNodeInfo(util.NewId())
 
 func TestSimplePacket(t *testing.T) {
 	c1, c2 := net.Pipe()
@@ -62,4 +62,20 @@ func (h *mockHandler) HandlePacket(pkt msg.Packet) {
 
 func (h *mockHandler) HandleError(data []byte, err error) {
 	h.errors = append(h.errors, dataError{data, err})
+}
+
+func (h *mockHandler) HandleHello(m msg.Hello) {
+}
+func (h *mockHandler) HandleKeepalive(m msg.KeepAlive) {
+}
+func (h *mockHandler) HandleScheduleActionConfig(m msg.ScheduleActionConfig) {
+}
+func (h *mockHandler) HandleResult(m msg.Result) {
+}
+func (h *mockHandler) HandleUnScheduleActionConfig(m msg.UnscheduleActionConfig) {
+}
+func (h *mockHandler) HandleRunActionConfig(m msg.RunActionConfig) {
+}
+func (h *mockHandler) HandleAllActionConfigs(msg.AllActionConfigs) {
+
 }

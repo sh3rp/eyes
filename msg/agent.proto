@@ -8,14 +8,21 @@ message Packet {
         CONTROLLER = 1;
     }
     Sender sender = 1;
-    int32 error_code = 2;
-    string error_message = 3;
+    int32 code = 2;
+    string msg = 3;
     oneof packet {
         Hello hello = 4;
-        Probe probe = 5;
+        ScheduleActionConfig schedule = 5;
         Result result = 6;
         KeepAlive keepalive = 7;
+        UnscheduleActionConfig unschedule = 8;
+        RunActionConfig run = 9;
+        AllActionConfigs allConfigs = 10;
     }
+}
+
+message AllActionConfigs {
+    repeated ScheduleActionConfig configs = 1;
 }
 
 message Hello {
@@ -42,16 +49,18 @@ message NodeInfo {
     int64 startTime = 11;
 }
 
-message Probe {
-    enum Action {
-        DEACTIVATE = 0;
-        ACTIVATE = 1;
-        RUN_ONCE = 2;
-        DELETE = 3;
-    }
-    Action action = 1;
-    ActionConfig config = 2;
-    string schedule = 3;
+message ScheduleActionConfig {
+    ActionConfig config = 1;
+    string schedule = 2;
+}
+
+message UnscheduleActionConfig {
+    ActionConfig config = 1;
+}
+
+message RunActionConfig {
+    ActionConfig config = 1;
+    int64 runtime = 2;
 }
 
 message ActionConfig {
