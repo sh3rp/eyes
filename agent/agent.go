@@ -5,7 +5,16 @@ import (
 	"github.com/sh3rp/eyes/util"
 )
 
+type AgentType int
+
+const (
+	AT_LOCAL = iota
+	AT_REMOTE
+)
+
 type Agent interface {
+	GetType() AgentType
+
 	StoreConfig(db.Config) error
 	DeleteConfig(util.ID) error
 	GetAllConfigs() ([]db.Config, error)

@@ -39,8 +39,22 @@ func (ctrl Controller) GetConfigs() ([]db.Config, error) {
 	return ctrl.DB.GetConfigs()
 }
 
-func (ctrl Controller) NewSchedule(s db.Schedule) error {
-	return nil
+func (ctrl Controller) NewSchedule(s db.Schedule) (db.Schedule, error) {
+	if s.Id == "" {
+		s.Id = util.NewId()
+	}
+
+	err := ctrl.DB.SaveSchedule(s)
+
+	if err != nil {
+		return db.Schedule{}, err
+	}
+
+	return ctrl.DB.GetSchedule(s.Id)
+}
+
+func (ctrl Controller) GetSchedules() ([]db.Schedule, error) {
+	return ctrl.DB.GetSchedules()
 }
 
 func (ctrl Controller) NewDeployment(d db.Deployment) error {

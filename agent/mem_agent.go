@@ -19,7 +19,7 @@ type MemAgent struct {
 	results         chan Result
 }
 
-func NewMemAgent() *MemAgent {
+func NewMemAgent() Agent {
 	cronScheduler := cron.New()
 	cronScheduler.Start()
 	agent := &MemAgent{
@@ -31,6 +31,10 @@ func NewMemAgent() *MemAgent {
 	}
 	go agent.sendResults()
 	return agent
+}
+
+func (a *MemAgent) GetType() AgentType {
+	return AT_LOCAL
 }
 
 func (a *MemAgent) StoreConfig(c db.Config) error {
