@@ -59,7 +59,7 @@ func NewId() ID {
 	t := time.Now()
 	entropy := rand.New(rand.NewSource(t.UnixNano()))
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
-	return ID(id.String())
+	return ID(strings.ToLower(id.String()))
 }
 
 func GenNodeInfo(id ID) msg.NodeInfo {

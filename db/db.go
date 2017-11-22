@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/rs/zerolog/log"
@@ -267,4 +268,12 @@ func toAgent(data []byte) Agent {
 		log.Error().Msgf("Error decoding to obj: %v", err)
 	}
 	return *obj
+}
+
+func NewDB(dir, name string) *bolt.DB {
+	db, err := bolt.Open(fmt.Sprintf("%s/%s.db", dir, name), 0644, nil)
+	if err != nil {
+		log.Error().Msg("Error creating db")
+	}
+	return db
 }

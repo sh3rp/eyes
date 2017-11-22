@@ -4,6 +4,7 @@ import (
 	"github.com/sh3rp/eyes/agent"
 	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/net"
+	"github.com/sh3rp/eyes/util"
 )
 
 type Controller struct {
@@ -12,8 +13,30 @@ type Controller struct {
 	Agents   map[string]agent.Agent
 }
 
-func (ctrl Controller) NewConfig(c db.Config) error {
-	return nil
+func NewController(dir string) Controller {
+	bolt := db.NewDB(dir, "eyes")
+	db := db.NewBoltEyesDB(bolt)
+	return Controller{
+		DB:     db,
+		Agents: make(map[string]agent.Agent),
+	}
+}
+
+func (ctrl Controller) NewConfig(c db.Config) (db.Config, error) {
+	if c.Id == "" {
+		c.Id = util.NewId()
+	}
+	err := ctrl.DB.SaveConfig(c)
+
+	if err != nil {
+		return db.Config{}, err
+	}
+
+	return ctrl.DB.GetConfig(c.Id)
+}
+
+func (ctrl Controller) GetConfigs() ([]db.Config, error) {
+	return ctrl.DB.GetConfigs()
 }
 
 func (ctrl Controller) NewSchedule(s db.Schedule) error {

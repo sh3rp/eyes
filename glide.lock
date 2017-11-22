@@ -1,37 +1,44 @@
 hash: c9eac898e7a1012b43cfe2ffde1405094917ee30de900ec5f4f5153f449b3d9b
-updated: 2017-11-22T11:33:00.461244-05:00
+updated: 2017-11-22T15:36:09.8108786-05:00
 imports:
 - name: github.com/boltdb/bolt
-  version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
+  version: 9da31745363232bc1e27dbab3569e77383a51585
+- name: github.com/flynn/go-shlex
+  version: 3f9db97f856818214da2e1057f8ad84803971cff
 - name: github.com/golang/protobuf
-  version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
+  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/matishsiao/goInfo
-  version: ed1e14d7a97bcc483d8f1e0c962114988768c37e
+  version: 617e6440957ee5591c8912e8b7e2f03a86298722
 - name: github.com/oklog/ulid
   version: 66bb6560562feca7045b23db1ae85b01260f87c5
 - name: github.com/rs/zerolog
-  version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
+  version: 2ed2f2c974489526d10329dae76d0f175684109a
   subpackages:
+  - internal/json
   - log
 - name: github.com/spf13/cobra
-  version: 3c0b56b677e04926dfa835a1b3f11cd4f62f076e
+  version: 19e54c4a2b8a78c9d54b2bed61b1a6c5e1bfcf6f
 - name: github.com/spf13/pflag
-  version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
+  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: golang.org/x/crypto
-  version: 81e90905daefcd6fd217b62423c0908922eadb30
+  version: 9f005a07e0d31d45e6656d241bb5c0f2efd4bc94
   subpackages:
   - curve25519
   - ed25519
   - ed25519/internal/edwards25519
   - ssh
 - name: golang.org/x/sys
-  version: 7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce
+  version: 82aafbf43bf885069dc71b7e7c2f9d7a614d47da
   subpackages:
   - unix
+- name: gopkg.in/abiosoft/ishell.v1
+  version: a7612be24192ddf96ba5f1fd5654d2e96a7553c7
+- name: gopkg.in/readline.v1
+  version: 62c6fe6193755f722b8b8788aa7357be55a50ff1
 - name: gopkg.in/robfig/cron.v2
   version: be2e0b0deed5a68ffee390b4583a13aff8321535
 testImports:
@@ -44,6 +51,6 @@ testImports:
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
-  version: 890a5c3458b43e6104ff5da8dfa139d013d77544
+  version: 2aa2c176b9dab406a6970f6a55f513e8a8c8b18f
   subpackages:
   - assert
