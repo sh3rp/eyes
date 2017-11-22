@@ -12,22 +12,22 @@ type Controller struct {
 	Agents   map[string]agent.Agent
 }
 
-func (c Controller) NewConfig(c db.Config) error {
-
+func (ctrl Controller) NewConfig(c db.Config) error {
+	return nil
 }
 
-func (c Controller) NewSchedule(s db.Schedule) error {
-
+func (ctrl Controller) NewSchedule(s db.Schedule) error {
+	return nil
 }
 
-func (c Controller) NewDeployment(d db.Deployment) error {
-
+func (ctrl Controller) NewDeployment(d db.Deployment) error {
+	return nil
 }
 
-func (c Controller) NewAgent(a db.Agent) error {
-	return c.DB.SaveAgent(a)
+func (ctrl Controller) NewAgent(a db.Agent) error {
+	return ctrl.DB.SaveAgent(a)
 }
 
-func (c Controller) processAgents() {
+func (ctrl Controller) processAgents() {
 
 }

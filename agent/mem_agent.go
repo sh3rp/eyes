@@ -69,7 +69,7 @@ func (a *MemAgent) ScheduleConfig(id util.ID, cronString string) error {
 	return err
 }
 
-func (a *MemAgent) UnscheduleConfig(id util.ID) error {
+func (a *MemAgent) UnScheduleConfig(id util.ID) error {
 	if _, ok := a.schedules[id]; !ok {
 		return errors.New(fmt.Sprintf("No schedule with ID %s", id))
 	}

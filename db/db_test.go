@@ -6,7 +6,6 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/rs/zerolog/log"
-	"github.com/sh3rp/eyes/agent"
 	"github.com/sh3rp/eyes/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,13 +24,13 @@ var DUMMY_PARAMETERS2 = map[string]string{
 
 var DUMMY_CONFIG1 = Config{
 	Id:         DUMMY_ID1,
-	Action:     agent.A_SSH,
+	Action:     1,
 	Parameters: DUMMY_PARAMETERS1,
 }
 
 var DUMMY_CONFIG2 = Config{
 	Id:         DUMMY_ID2,
-	Action:     agent.A_SSH,
+	Action:     1,
 	Parameters: DUMMY_PARAMETERS2,
 }
 
@@ -53,7 +52,7 @@ func TestConfig(t *testing.T) {
 
 	err := eyesDB.SaveConfig(Config{
 		Id:         DUMMY_ID1,
-		Action:     agent.A_SSH,
+		Action:     1,
 		Parameters: DUMMY_PARAMETERS1,
 	})
 	assert.Nil(t, err)
@@ -61,7 +60,7 @@ func TestConfig(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, config)
 	assert.Equal(t, DUMMY_ID1, config.Id)
-	assert.Equal(t, agent.A_SSH, config.Action)
+	assert.Equal(t, 1, config.Action)
 	assert.Equal(t, DUMMY_PARAMETERS1, config.Parameters)
 	rmDB()
 }

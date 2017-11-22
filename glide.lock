@@ -1,5 +1,5 @@
 hash: c9eac898e7a1012b43cfe2ffde1405094917ee30de900ec5f4f5153f449b3d9b
-updated: 2017-11-06T18:25:40.530508498-05:00
+updated: 2017-11-22T11:33:00.461244-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -7,6 +7,8 @@ imports:
   version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
   subpackages:
   - proto
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/matishsiao/goInfo
   version: ed1e14d7a97bcc483d8f1e0c962114988768c37e
 - name: github.com/oklog/ulid
@@ -15,6 +17,10 @@ imports:
   version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
   subpackages:
   - log
+- name: github.com/spf13/cobra
+  version: 3c0b56b677e04926dfa835a1b3f11cd4f62f076e
+- name: github.com/spf13/pflag
+  version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
 - name: golang.org/x/crypto
   version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
