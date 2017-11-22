@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,18 +13,18 @@ import (
 func TestDummySchedule(t *testing.T) {
 	results := []Result{}
 	agent := NewMemAgent()
-	agent.AddResultHandler("logger", func(r Result) {
+	agent.HandleResult(func(r Result) {
 		results = append(results, r)
 	})
 	configParameters := make(map[string]string)
 	configParameters["a"] = "avalue"
-	config := ActionConfig{
+	config := db.Config{
 		Id:         util.ID("pants"),
 		Action:     A_TEST,
 		Parameters: configParameters,
 	}
-	agent.StoreActionConfig(config)
-	agent.ScheduleAction(config.Id, "@every 1s")
+	agent.StoreConfig(config)
+	agent.ScheduleConfig(config.Id, "@every 1s")
 
 	time.Sleep(1 * time.Second)
 
@@ -34,7 +35,7 @@ func TestDummySchedule(t *testing.T) {
 
 func TestSSHSchedule(t *testing.T) {
 	agent := NewMemAgent()
-	agent.AddResultHandler("logger", func(r Result) {
+	agent.HandleResult(func(r Result) {
 		fmt.Printf("[R]: %s\n", string(r.Data))
 	})
 	configParameters := make(map[string]string)
@@ -42,13 +43,13 @@ func TestSSHSchedule(t *testing.T) {
 	configParameters["username"] = ""
 	configParameters["password"] = ""
 	configParameters["command"] = "uptime"
-	config := ActionConfig{
+	config := db.Config{
 		Id:         util.ID("ssh"),
 		Action:     A_SSH,
 		Parameters: configParameters,
 	}
-	agent.StoreActionConfig(config)
-	agent.ScheduleAction(config.Id, "@every 1s")
+	agent.StoreConfig(config)
+	agent.ScheduleConfig(config.Id, "@every 1s")
 
 	time.Sleep(1 * time.Second)
 }

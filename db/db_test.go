@@ -23,35 +23,35 @@ var DUMMY_PARAMETERS2 = map[string]string{
 	"key4": "value4",
 }
 
-var DUMMY_CONFIG1 = agent.ActionConfig{
+var DUMMY_CONFIG1 = Config{
 	Id:         DUMMY_ID1,
 	Action:     agent.A_SSH,
 	Parameters: DUMMY_PARAMETERS1,
 }
 
-var DUMMY_CONFIG2 = agent.ActionConfig{
+var DUMMY_CONFIG2 = Config{
 	Id:         DUMMY_ID2,
 	Action:     agent.A_SSH,
 	Parameters: DUMMY_PARAMETERS2,
 }
 
 var DUMMY_SCHEDULE1 = Schedule{
-	Id:            DUMMY_ID1,
-	ActioConfigId: DUMMY_ID1,
-	Schedule:      "@every 1s",
+	Id:       DUMMY_ID1,
+	ConfigId: DUMMY_ID1,
+	Schedule: "@every 1s",
 }
 
 var DUMMY_SCHEDULE2 = Schedule{
-	Id:            DUMMY_ID2,
-	ActioConfigId: DUMMY_ID2,
-	Schedule:      "@every 1s",
+	Id:       DUMMY_ID2,
+	ConfigId: DUMMY_ID2,
+	Schedule: "@every 1s",
 }
 
 func TestConfig(t *testing.T) {
 	db := newDB()
 	eyesDB := NewBoltEyesDB(db)
 
-	err := eyesDB.SaveConfig(agent.ActionConfig{
+	err := eyesDB.SaveConfig(Config{
 		Id:         DUMMY_ID1,
 		Action:     agent.A_SSH,
 		Parameters: DUMMY_PARAMETERS1,
@@ -91,7 +91,7 @@ func TestSchedule(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, schedule)
 	assert.Equal(t, DUMMY_ID1, schedule.Id)
-	assert.Equal(t, DUMMY_ID1, schedule.ActioConfigId)
+	assert.Equal(t, DUMMY_ID1, schedule.ConfigId)
 	assert.Equal(t, "@every 1s", schedule.Schedule)
 	rmDB()
 }

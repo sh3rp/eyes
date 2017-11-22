@@ -6,13 +6,14 @@ import (
 	"strconv"
 
 	"github.com/rs/zerolog/log"
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/probe"
 	"github.com/sh3rp/eyes/util"
 )
 
 type TCPPing struct{}
 
-func (ping TCPPing) Execute(config ActionConfig) (Result, error) {
+func (ping TCPPing) Execute(config db.Config) (Result, error) {
 	var result Result
 	var port int
 	if _, ok := config.Parameters["port"]; ok {

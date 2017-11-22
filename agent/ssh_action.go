@@ -4,12 +4,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/util"
 )
 
 type SSHExec struct{}
 
-func (ssh SSHExec) Execute(config ActionConfig) (Result, error) {
+func (ssh SSHExec) Execute(config db.Config) (Result, error) {
 	host := config.Parameters["host"]
 	port := 22
 

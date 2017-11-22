@@ -1,15 +1,12 @@
 package agent
 
-import "github.com/sh3rp/eyes/util"
+import (
+	"github.com/sh3rp/eyes/db"
+	"github.com/sh3rp/eyes/util"
+)
 
 type Action interface {
-	Execute(ActionConfig) (Result, error)
-}
-
-type ActionConfig struct {
-	Id         util.ID
-	Action     int
-	Parameters map[string]string
+	Execute(db.Config) (Result, error)
 }
 
 const (
@@ -45,7 +42,7 @@ type Result struct {
 
 type DummyAction struct{}
 
-func (d DummyAction) Execute(c ActionConfig) (Result, error) {
+func (d DummyAction) Execute(c db.Config) (Result, error) {
 	return Result{
 		Id:        util.NewId(),
 		ConfigId:  c.Id,

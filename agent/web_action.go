@@ -4,12 +4,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/util"
 )
 
 type WebAction struct{}
 
-func (wa WebAction) Execute(config ActionConfig) (Result, error) {
+func (wa WebAction) Execute(config db.Config) (Result, error) {
 	res, err := http.Get(config.Parameters["url"])
 
 	if err != nil {

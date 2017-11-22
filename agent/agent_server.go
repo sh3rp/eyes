@@ -1,28 +1,29 @@
-package net
+package agent
 
 import (
 	"net"
 
 	"github.com/rs/zerolog/log"
-	"github.com/sh3rp/eyes/agent"
+	"github.com/sh3rp/eyes/db"
 	"github.com/sh3rp/eyes/msg"
+	n "github.com/sh3rp/eyes/net"
 	"github.com/sh3rp/eyes/util"
 )
 
 type AgentServer struct {
-	connection Connection
-	agent      agent.Agent
+	connection n.Connection
+	agent      Agent
 }
 
-func NewAgentServer(c net.Conn, agent agent.Agent) AgentServer {
-	connection := NewConnection(c, msg.NodeInfo{}, 10000)
+func NewAgentServer(c net.Conn, agent Agent) AgentServer {
+	connection := n.NewConnection(c, msg.NodeInfo{}, 10000)
 	// TODO: fix this circular dependency
 	agentServer := AgentServer{
 		connection: connection,
 		agent:      agent,
 	}
 	connection.SetHandler(agentServer)
-	agent.AddResultHandler("agent", agentServer.shipResult)
+	agent.HandleResult(agentServer.shipResult)
 	return agentServer
 }
 
@@ -41,9 +42,7 @@ func (s AgentServer) HandleKeepalive(m msg.KeepAlive) {
 }
 
 func (s AgentServer) HandleScheduleActionConfig(m msg.ScheduleActionConfig) {
-	c := PBtoAgentConfig(m.Config)
-	s.agent.StoreActionConfig(c)
-	s.agent.ScheduleAction(c.Id, m.Schedule)
+
 }
 
 func (s AgentServer) HandleResult(m msg.Result) {
@@ -51,8 +50,7 @@ func (s AgentServer) HandleResult(m msg.Result) {
 }
 
 func (s AgentServer) HandleUnScheduleActionConfig(m msg.UnscheduleActionConfig) {
-	c := PBtoAgentConfig(m.Config)
-	s.agent.UnscheduleAction(c.Id)
+
 }
 
 func (s AgentServer) HandleRunActionConfig(m msg.RunActionConfig) {
@@ -62,7 +60,7 @@ func (s AgentServer) HandleRunActionConfig(m msg.RunActionConfig) {
 func (s AgentServer) HandleAllActionConfigs(m msg.AllActionConfigs) {
 }
 
-func (s AgentServer) shipResult(r agent.Result) {
+func (s AgentServer) shipResult(r Result) {
 	pb := ResultToPB(r)
 	s.connection.Send(msg.Packet{
 		Sender: msg.Packet_AGENT,
@@ -72,7 +70,7 @@ func (s AgentServer) shipResult(r agent.Result) {
 	})
 }
 
-func ResultToPB(r agent.Result) *msg.Result {
+func ResultToPB(r Result) *msg.Result {
 	return &msg.Result{
 		Id:        string(r.Id),
 		ConfigId:  string(r.ConfigId),
@@ -83,8 +81,8 @@ func ResultToPB(r agent.Result) *msg.Result {
 	}
 }
 
-func PBtoAgentConfig(cfg *msg.ActionConfig) agent.ActionConfig {
-	return agent.ActionConfig{
+func PBtoConfig(cfg *msg.ActionConfig) db.Config {
+	return db.Config{
 		Id:         util.ID(cfg.Id),
 		Action:     int(cfg.Action),
 		Parameters: cfg.Parameters,
