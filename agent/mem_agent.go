@@ -19,7 +19,7 @@ type MemAgent struct {
 	results         chan Result
 }
 
-func NewMemAgent() Agent {
+func NewMemAgent(handler func(Result)) Agent {
 	cronScheduler := cron.New()
 	cronScheduler.Start()
 	agent := &MemAgent{
@@ -28,6 +28,7 @@ func NewMemAgent() Agent {
 		cronScheduler:   cronScheduler,
 		results:         make(chan Result),
 		scheduleStrings: make(map[cron.EntryID]string),
+		resultHandler:   handler,
 	}
 	go agent.sendResults()
 	return agent

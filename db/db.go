@@ -72,7 +72,7 @@ type Deployment struct {
 
 type Agent struct {
 	Id        util.ID
-	IpAddress string
+	AgentType int
 }
 
 func (db BoltEyesDB) SaveConfig(c Config) error {

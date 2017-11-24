@@ -16,13 +16,15 @@ import (
 
 var consoleMode bool
 
+var handler = ResultHandler{}
+
 var RootCmd = &cobra.Command{
 	Use:   "eyesctl",
 	Short: "",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		if consoleMode {
-			wrapper := NewWrapper(ishell.New(), controller.NewController("/tmp"))
+			wrapper := NewWrapper(ishell.New(), controller.NewController("/tmp", handler.handleResult))
 			wrapper.Start()
 		}
 	},
@@ -31,6 +33,14 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&consoleMode, "console", "c", false, "Run in console mode (for debugging)")
 	RootCmd.AddCommand(AgentCmd, ServerCmd)
+}
+
+type ResultHandler struct {
+	results []agent.Result
+}
+
+func (handler ResultHandler) handleResult(r agent.Result) {
+	handler.results = append(handler.results, r)
 }
 
 type ShellWrapper struct {
@@ -47,6 +57,10 @@ func NewWrapper(shell *ishell.Shell, ctrl controller.Controller) ShellWrapper {
 	wrapper.shell.Register("lscfg", wrapper.lsCfgCmd)
 	wrapper.shell.Register("newsched", wrapper.newSchedCmd)
 	wrapper.shell.Register("lssched", wrapper.lsSchedCmd)
+	wrapper.shell.Register("lsagent", wrapper.lsAgentCmd)
+	wrapper.shell.Register("newagent", wrapper.newAgentCmd)
+	wrapper.shell.Register("deploy", nil)
+	wrapper.shell.Register("undeploy", nil)
 	return wrapper
 }
 
@@ -107,6 +121,24 @@ func (wrapper ShellWrapper) lsSchedCmd(args ...string) (string, error) {
 	str += fmt.Sprintf("========================== ========================== ===============================\n")
 	for _, s := range schedules {
 		str += fmt.Sprintf("%25s %25s %s\n", s.Id, s.ConfigId, s.Schedule)
+	}
+	return str, err
+}
+
+func (wrapper ShellWrapper) newAgentCmd(args ...string) (string, error) {
+	agent, err := wrapper.controller.NewAgentLocal()
+	return fmt.Sprintf("%+v\n", agent), err
+}
+
+func (wrapper ShellWrapper) lsAgentCmd(args ...string) (string, error) {
+	agents, err := wrapper.controller.GetAgents()
+
+	str := "\n"
+	str += "Agents\n"
+	str += fmt.Sprintf("ID                         Type\n")
+	str += fmt.Sprintf("========================== ====\n")
+	for _, a := range agents {
+		str += fmt.Sprintf("%25s %d\n", a.Id, a.AgentType)
 	}
 	return str, err
 }
