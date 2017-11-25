@@ -64,6 +64,16 @@ func SendPing(srcIP, dstIP string, srcPort, dstPort uint16) time.Time {
 
 	data := packet.MarshalTCP()
 
+	if !validIP(srcIP) {
+		log.Info().Msgf("Invalid src IP: %v", srcIP)
+		return time.Now()
+	}
+
+	if !validIP(dstIP) {
+		log.Info().Msgf("Invalid dst IP: %v", srcIP)
+		return time.Now()
+	}
+
 	packet.Checksum = Checksum(data, to4byte(srcIP), to4byte(dstIP))
 
 	data = packet.MarshalTCP()
@@ -174,4 +184,25 @@ func to4byte(addr string) [4]byte {
 
 func getNextLocalPort() uint16 {
 	return 0
+}
+
+func validIP(ip string) bool {
+	if !strings.Contains(ip, ".") {
+		return false
+	}
+
+	tokens := strings.Split(ip, ".")
+
+	if len(tokens) != 4 {
+		return false
+	}
+
+	for _, toke := range tokens {
+		_, err := strconv.Atoi(toke)
+		if err != nil {
+			return false
+		}
+	}
+
+	return true
 }
