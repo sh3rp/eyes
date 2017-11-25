@@ -59,8 +59,10 @@ func NewWrapper(shell *ishell.Shell, ctrl controller.Controller) ShellWrapper {
 	wrapper.shell.Register("lssched", wrapper.lsSchedCmd)
 	wrapper.shell.Register("lsagent", wrapper.lsAgentCmd)
 	wrapper.shell.Register("newagent", wrapper.newAgentCmd)
-	wrapper.shell.Register("deploy", nil)
+	wrapper.shell.Register("deploy", wrapper.deployCmd)
+	wrapper.shell.Register("lsdep", wrapper.lsDepCmd)
 	wrapper.shell.Register("undeploy", nil)
+	wrapper.shell.Register("results", wrapper.resultsCmd)
 	return wrapper
 }
 
@@ -141,4 +143,77 @@ func (wrapper ShellWrapper) lsAgentCmd(args ...string) (string, error) {
 		str += fmt.Sprintf("%25s %d\n", a.Id, a.AgentType)
 	}
 	return str, err
+}
+
+func (wrapper ShellWrapper) lsDepCmd(args ...string) (string, error) {
+	deployments, err := wrapper.controller.GetDeployments()
+
+	str := "\n"
+	str += "Deployments\n"
+	str += fmt.Sprintf("ID                         Agent                      Schedule                   State\n")
+	str += fmt.Sprintf("========================== ========================== ========================== =====\n")
+	for _, d := range deployments {
+		str += fmt.Sprintf("%25s %25s %25s %d\n", d.Id, d.Agent, d.Schedule, d.State)
+	}
+	return str, err
+}
+
+func (wrapper ShellWrapper) deployCmd(args ...string) (string, error) {
+	agentId := args[0]
+	scheduleId := args[1]
+
+	agent, err := wrapper.controller.GetAgent(util.ID(agentId))
+
+	if err != nil {
+		return "", err
+	}
+
+	if agent.Id == "" {
+		return "No such agent", nil
+	}
+
+	deployments, err := wrapper.controller.GetDeployments()
+
+	if err != nil {
+		return "", err
+	}
+
+	var id util.ID
+	var deployment db.Deployment
+
+	for _, d := range deployments {
+		if d.Agent == util.ID(agentId) && d.Schedule == util.ID(scheduleId) {
+			id = d.Id
+			break
+		}
+	}
+
+	if id == "" {
+		id = util.NewId()
+		deployment = db.Deployment{
+			Id:       id,
+			Agent:    util.ID(agentId),
+			Schedule: util.ID(scheduleId),
+		}
+		wrapper.controller.NewDeployment(deployment)
+	}
+	return fmt.Sprintf("%+v\n", deployment), nil
+}
+
+func (wrapper ShellWrapper) undeployCmd(args ...string) (string, error) {
+	return "", nil
+}
+
+func (wrapper ShellWrapper) resultsCmd(args ...string) (string, error) {
+	str := "\n"
+	str += "Results\n"
+	str += "\n"
+
+	for _, r := range handler.results {
+		str += fmt.Sprintf("%+v\n", r)
+	}
+
+	str += "\n"
+
+	return str, nil
 }

@@ -1,38 +1,39 @@
 hash: c9eac898e7a1012b43cfe2ffde1405094917ee30de900ec5f4f5153f449b3d9b
-updated: 2017-11-22T15:36:09.8108786-05:00
+updated: 2017-11-24T11:29:16.032572-05:00
 imports:
 - name: github.com/boltdb/bolt
-  version: 9da31745363232bc1e27dbab3569e77383a51585
+  version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
+- name: github.com/fatih/structs
+  version: f5faa72e73092639913f5833b75e1ac1d6bc7a63
 - name: github.com/flynn/go-shlex
   version: 3f9db97f856818214da2e1057f8ad84803971cff
 - name: github.com/golang/protobuf
-  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
+  version: 0a4f71a498b7c4812f64969510bcb4eca251e33a
   subpackages:
   - proto
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/matishsiao/goInfo
-  version: 617e6440957ee5591c8912e8b7e2f03a86298722
+  version: ed1e14d7a97bcc483d8f1e0c962114988768c37e
 - name: github.com/oklog/ulid
   version: 66bb6560562feca7045b23db1ae85b01260f87c5
 - name: github.com/rs/zerolog
-  version: 2ed2f2c974489526d10329dae76d0f175684109a
+  version: 2e3da1d5b5ca21d19ebdf4d8ead8aa202cd7341d
   subpackages:
-  - internal/json
   - log
 - name: github.com/spf13/cobra
-  version: 19e54c4a2b8a78c9d54b2bed61b1a6c5e1bfcf6f
+  version: 3c0b56b677e04926dfa835a1b3f11cd4f62f076e
 - name: github.com/spf13/pflag
-  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
+  version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
 - name: golang.org/x/crypto
-  version: 9f005a07e0d31d45e6656d241bb5c0f2efd4bc94
+  version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
   - curve25519
   - ed25519
   - ed25519/internal/edwards25519
   - ssh
 - name: golang.org/x/sys
-  version: 82aafbf43bf885069dc71b7e7c2f9d7a614d47da
+  version: 7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce
   subpackages:
   - unix
 - name: gopkg.in/abiosoft/ishell.v1
@@ -51,6 +52,6 @@ testImports:
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
-  version: 2aa2c176b9dab406a6970f6a55f513e8a8c8b18f
+  version: 890a5c3458b43e6104ff5da8dfa139d013d77544
   subpackages:
   - assert

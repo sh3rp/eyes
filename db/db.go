@@ -27,7 +27,6 @@ type EyesDB interface {
 	DeleteSchedule(util.ID) error
 
 	SaveDeployment(Deployment) error
-	GetDeployment(util.ID) (Deployment, error)
 	GetDeployments() ([]Deployment, error)
 	DeleteDeployment(util.ID) error
 
@@ -52,6 +51,12 @@ func NewBoltEyesDB(db *bolt.DB) EyesDB {
 	return &BoltEyesDB{db}
 }
 
+const (
+	DEPLOY_UNKNOWN = iota
+	DEPLOY_DEPLOYED
+	DEPLOY_UNDEPLOYED
+)
+
 type Config struct {
 	Id         util.ID
 	Action     int
@@ -65,9 +70,10 @@ type Schedule struct {
 }
 
 type Deployment struct {
-	Id         util.ID
-	Agents     []util.ID
-	ScheduleId util.ID
+	Id       util.ID
+	Agent    util.ID
+	Schedule util.ID
+	State    int
 }
 
 type Agent struct {
@@ -121,7 +127,7 @@ func (db BoltEyesDB) SaveDeployment(deployment Deployment) error {
 	return nil
 }
 
-func (db BoltEyesDB) GetDeployment(id util.ID) (Deployment, error) {
+func (db BoltEyesDB) GetDeploymentByAgent(id util.ID) (Deployment, error) {
 	return toDeployment(db.get(DEPLOYMENT_BUCKET, []byte(id))), nil
 }
 
